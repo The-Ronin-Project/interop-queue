@@ -1,0 +1,51 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  status:
+    default_rules:
+      flag_coverage_not_uploaded_behavior: pass
+    project:
+      api:
+        target: auto
+        threshold: 1%
+        flags:
+          - api
+      db:
+        target: auto
+        threshold: 1%
+        flags:
+          - db
+
+    patch:
+      api:
+        target: 80
+        threshold: 1%
+        base: auto
+        flags:
+          - api
+      db:
+        target: 80
+        threshold: 1%
+        base: auto
+        flags:
+          - db
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  branches: null
+  show_carryforward_flags: false
+
+flags:
+  api:
+    paths:
+      - interop-queue/
+    carryforward: true
+  db:
+    paths:
+      - interop-queue-db/
+    carryforward: true

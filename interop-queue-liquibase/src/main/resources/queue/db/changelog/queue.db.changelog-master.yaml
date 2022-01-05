@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: queue/db/changelog/queue.db.changelog-1.0.0.yaml

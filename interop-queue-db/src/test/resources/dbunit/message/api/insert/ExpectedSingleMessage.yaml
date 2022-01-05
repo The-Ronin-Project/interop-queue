@@ -1,0 +1,7 @@
+io_queue_api:
+  - io_queue_api_id: "regex:\\d+"
+    resource_type: "PATIENT"
+    tenant_mnemonic: "TEST1"
+    text: "{\"id\":2,\"value\":\"Saved\"}"
+    create_instant: "regex:.+"
+    read_instant: NULL

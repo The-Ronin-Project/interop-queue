@@ -1,0 +1,7 @@
+io_queue_api:
+  - io_queue_api_id: 100
+    resource_type: "PATIENT"
+    tenant_mnemonic: "NEWTENANT"
+    text: "{\"id\":2,\"value\":\"Saved\"}"
+    create_instant: "2021-11-01 11:18:00 +0000"
+    read_instant: NULL
