@@ -11,6 +11,6 @@ dependencies {
     // Spring
     implementation("org.springframework:spring-context")
 
-    implementation("com.projectronin.interop:interop-common-test-db")
+    testImplementation("com.projectronin.interop:interop-common-test-db")
     testImplementation(project(":interop-queue-liquibase"))
 }
