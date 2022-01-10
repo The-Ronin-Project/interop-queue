@@ -9,14 +9,4 @@ plugins {
 
 subprojects {
     apply(plugin = "com.projectronin.interop.gradle.publish")
-
-    dependencyManagement {
-        dependencies {
-            // This all works, but IntelliJ does not properly recognize the actual dependencies method being called and thus cannot find the refenced methods below.
-            dependencySet("com.projectronin.interop:${ext["interopCommonVersion"]}") {
-                entry("interop-common")
-                entry("interop-common-test-db")
-            }
-        }
-    }
 }
