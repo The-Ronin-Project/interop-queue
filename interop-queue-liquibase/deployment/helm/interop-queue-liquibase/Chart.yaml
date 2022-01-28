@@ -1,10 +1,10 @@
 apiVersion: v1
-name: kotlin-reference-app
+name: interop-queue-liquibase
 version: 1.0.0
-description: Kotlin Reference App
-home: https://github.com/projectronin/kotlin-reference-app/tree/master/kotlin-reference-app
+description: Interop Queue Liquibaxe
+home: https://github.com/projectronin/interop-queue/tree/master/interop-queue-liquibase
 sources:
-  - https://github.com/projectronin/kotlin-reference-app/tree/master/kotlin-reference-app
+  - https://github.com/projectronin/interop-queue/tree/master/interop-queue-liquibase
 maintainers:
   - name: developer experience
     email: developer-experience@projectronin.com
