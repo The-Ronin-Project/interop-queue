@@ -3,13 +3,13 @@ name: Deployment to K8s
 on:
   push:
     #branches: [master]
-env:
-  base-directory: ./interop-queue-liquibase
-
 jobs:
   get-tags:
     name: Standard tags
     runs-on: ubuntu-18.04
+    env:
+      base-directory: ./interop-queue-liquibase
+
     outputs:
       helm_tag: ${{ steps.git_info.outputs.helm_tag }}
 
@@ -28,7 +28,7 @@ jobs:
   image-push:
     uses: projectronin/github/.github/workflows/image_push.yml@master
     with:
-      base-directory: ${{ env.base-directory }}
+      base-directory: ./interop-queue-liquibase
       image-tag: ${{ github.sha }}
       repo: 'interop-queue-liquibase'
     secrets:
@@ -38,7 +38,7 @@ jobs:
   helm:
     uses: projectronin/github/.github/workflows/helm_push.yml@master
     with:
-      base-directory: ${{ env.base-directory }}
+      base-directory: ./interop-queue-liquibase
       repo: 'interop-queue-liquibase'
     secrets:
       helm-repo: ${{ secrets.HELM_REPO }}
@@ -48,7 +48,7 @@ jobs:
     uses: projectronin/github/.github/workflows/k8s_deploy.yml@master
     needs: [python-test,get-tags,image-push,helm]
     with:
-      base-directory: ${{ env.base-directory }}
+      base-directory: ./interop-queue-liquibase
       environment: prod
       cluster-name: aks-prod-centralus
       resource-group: rg-infra-k8s-prod
