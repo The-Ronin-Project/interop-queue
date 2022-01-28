@@ -1,0 +1,61 @@
+name: Deployment to K8s
+
+on:
+  push:
+    #branches: [master]
+env:
+  base-directory: ./interop-queue-liquibase
+
+jobs:
+  get-tags:
+    name: Standard tags
+    runs-on: ubuntu-18.04
+    outputs:
+      helm_tag: ${{ steps.git_info.outputs.helm_tag }}
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2.1.0
+
+    - name: github information
+      id: git_info
+      run: |
+        TAG=$(cat deployment/helm/interop-queue-liquibase/Chart.yaml | grep version | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
+        echo ${TAG}
+        echo ::set-output name=helm_tag::$(echo ${TAG})
+      working-directory: ${{ env.base-directory }}
+
+  image-push:
+    uses: projectronin/github/.github/workflows/image_push.yml@master
+    with:
+      base-directory: ${{ env.base-directory }}
+      image-tag: ${{ github.sha }}
+      repo: 'interop-queue-liquibase'
+    secrets:
+      username: ${{ secrets.ACR_USERNAME }}
+      password: ${{ secrets.ACR_PASSWORD }}
+
+  helm:
+    uses: projectronin/github/.github/workflows/helm_push.yml@master
+    with:
+      base-directory: ${{ env.base-directory }}
+      repo: 'interop-queue-liquibase'
+    secrets:
+      helm-repo: ${{ secrets.HELM_REPO }}
+      helm-password: ${{ secrets.HELM_PASSWORD }}
+
+  k8s:
+    uses: projectronin/github/.github/workflows/k8s_deploy.yml@master
+    needs: [python-test,get-tags,image-push,helm]
+    with:
+      base-directory: ${{ env.base-directory }}
+      environment: prod
+      cluster-name: aks-prod-centralus
+      resource-group: rg-infra-k8s-prod
+      helm-tag: ${{ needs.get-tags.outputs.helm_tag }}
+      image-tag: ${{ github.sha }}
+      repo: 'interop-queue-liquibase'
+    secrets:
+      helm-repo: ${{ secrets.HELM_REPO }}
+      helm-password: ${{ secrets.HELM_PASSWORD }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
