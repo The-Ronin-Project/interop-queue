@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ include "interop-queue-liquibase.fullname" . }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: interop-queue-liquibase.{{ .Values.infra.env }}.projectronin.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "interop-queue-liquibase.fullname" . }}
+                port:
+                  number: 80
+    - host: interop-queue-liquibase-ds.{{ .Values.infra.env }}.projectronin.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "interop-queue-liquibase.fullname" . }}
+                port:
+                  number: 80
