@@ -1,8 +1,11 @@
-name: Deployment to K8s
+name: Deployment of Interop Queue Liquibase to K8s
 
 on:
-  push:
-    #branches: [master]
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: [master]
+
 jobs:
   get-tags:
     name: Standard tags
@@ -12,7 +15,7 @@ jobs:
 
     outputs:
       helm_tag: ${{ steps.git_info.outputs.helm_tag }}
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
     - name: Check out code
       uses: actions/checkout@v2.1.0
@@ -26,6 +29,7 @@ jobs:
       working-directory: ${{ env.base-directory }}
 
   image-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: projectronin/github/.github/workflows/image_push.yml@master
     with:
       base-directory: ./interop-queue-liquibase
@@ -36,6 +40,7 @@ jobs:
       password: ${{ secrets.ACR_PASSWORD }}
 
   helm:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: projectronin/github/.github/workflows/helm_push.yml@master
     with:
       base-directory: ./interop-queue-liquibase
@@ -45,6 +50,7 @@ jobs:
       helm-password: ${{ secrets.HELM_PASSWORD }}
 
   k8s:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: projectronin/github/.github/workflows/k8s_deploy.yml@master
     needs: [get-tags,image-push,helm]
     with:
