@@ -2,7 +2,7 @@ name: Deployment of Interop Queue Liquibase to K8s
 
 on:
   workflow_run:
-    workflows: [Tests]
+    workflows: [Interop Queue DB Tests]
     types: [completed]
     branches: [master]
 
