@@ -50,7 +50,7 @@ jobs:
       helm-password: ${{ secrets.HELM_PASSWORD }}
 
   k8s:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ always() && contains(needs.helm.result, 'success') }}
     uses: projectronin/github/.github/workflows/k8s_deploy.yml@master
     needs: [get-tags,image-push,helm]
     with:
