@@ -1,0 +1,67 @@
+name: Deployment of Interop Queue Liquibase to K8s
+
+on:
+  workflow_run:
+    workflows: [Interop Queue DB Tests]
+    types: [completed]
+    branches: [master]
+
+jobs:
+  get-tags:
+    name: Standard tags
+    runs-on: ubuntu-18.04
+    env:
+      base-directory: ./interop-queue-liquibase
+
+    outputs:
+      helm_tag: ${{ steps.git_info.outputs.helm_tag }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2.1.0
+
+    - name: github information
+      id: git_info
+      run: |
+        TAG=$(cat deployment/helm/interop-queue-liquibase/Chart.yaml | grep version | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
+        echo ${TAG}
+        echo ::set-output name=helm_tag::$(echo ${TAG})
+      working-directory: ${{ env.base-directory }}
+
+  image-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: projectronin/github/.github/workflows/image_push.yml@master
+    with:
+      base-directory: ./interop-queue-liquibase
+      image-tag: ${{ github.sha }}
+      repo: 'interop-queue-liquibase'
+    secrets:
+      username: ${{ secrets.ACR_USERNAME }}
+      password: ${{ secrets.ACR_PASSWORD }}
+
+  helm:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: projectronin/github/.github/workflows/helm_push.yml@master
+    with:
+      base-directory: ./interop-queue-liquibase
+      repo: 'interop-queue-liquibase'
+    secrets:
+      helm-repo: ${{ secrets.HELM_REPO }}
+      helm-password: ${{ secrets.HELM_PASSWORD }}
+
+  k8s:
+    if: ${{ always() && contains(needs.helm.result, 'success') }}
+    uses: projectronin/github/.github/workflows/k8s_deploy.yml@master
+    needs: [get-tags,image-push,helm]
+    with:
+      base-directory: ./interop-queue-liquibase
+      environment: prod
+      cluster-name: aks-prod-centralus
+      resource-group: rg-infra-k8s-prod
+      helm-tag: ${{ needs.get-tags.outputs.helm_tag }}
+      image-tag: ${{ github.sha }}
+      repo: 'interop-queue-liquibase'
+    secrets:
+      helm-repo: ${{ secrets.HELM_REPO }}
+      helm-password: ${{ secrets.HELM_PASSWORD }}
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
