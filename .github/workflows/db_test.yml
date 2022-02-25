@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: self-hosted
     env:
-      TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: docker-proxy.devops.projectronin.io
+      TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: docker-proxy.devops.projectronin.io/
 
     steps:
       - uses: actions/checkout@v2
