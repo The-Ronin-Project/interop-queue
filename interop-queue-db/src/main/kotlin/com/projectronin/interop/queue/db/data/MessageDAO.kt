@@ -20,6 +20,7 @@ import org.ktorm.dsl.where
 import org.ktorm.support.mysql.LockingMode
 import org.ktorm.support.mysql.bulkInsert
 import org.ktorm.support.mysql.locking
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import java.time.Instant
 
@@ -27,7 +28,7 @@ import java.time.Instant
  * Provides data access operations for message data models.
  */
 @Repository
-class MessageDAO(private val database: Database) {
+class MessageDAO(@Qualifier("queue") private val database: Database) {
     val logger = KotlinLogging.logger { }
 
     /**
