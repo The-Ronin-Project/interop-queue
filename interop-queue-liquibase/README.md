@@ -37,6 +37,9 @@ This enables simple integration into a docker compose or container orchestration
 ```shell
 docker image build -t interop-queue-liquibase . 
 ```
+### Using the Docker Container
+
+To leverage the project several enviroment variables are required, listed below.
 
 #### Environment Variables
 
