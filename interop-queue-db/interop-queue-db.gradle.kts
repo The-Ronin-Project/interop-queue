@@ -5,12 +5,12 @@ plugins {
 }
 
 dependencies {
-    implementation("com.projectronin.interop:interop-common:${project.property("interopCommonVersion")}")
+    implementation(libs.interop.common)
     implementation(project(":interop-queue"))
 
     // Spring
     implementation("org.springframework:spring-context")
 
-    testImplementation("com.projectronin.interop:interop-common-test-db:${project.property("interopCommonVersion")}")
+    testImplementation(libs.interop.commonTestDb)
     testImplementation(project(":interop-queue-liquibase"))
 }

@@ -1,0 +1,3 @@
+[libraries]
+interop-common = "com.projectronin.interop:interop-common:1.0.0-SNAPSHOT"
+interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:1.0.0-SNAPSHOT"

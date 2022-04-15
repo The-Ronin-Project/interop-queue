@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation("com.projectronin.interop:interop-common:${project.property("interopCommonVersion")}")
+    implementation(libs.interop.common)
 }
