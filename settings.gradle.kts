@@ -9,7 +9,7 @@ for (project in rootProject.children) {
 }
 
 pluginManagement {
-    val interopGradleVersion = "1.0.0-SNAPSHOT"
+    val interopGradleVersion = "1.0.0"
     plugins {
         id("com.projectronin.interop.gradle.base") version interopGradleVersion
         id("com.projectronin.interop.gradle.junit") version interopGradleVersion
