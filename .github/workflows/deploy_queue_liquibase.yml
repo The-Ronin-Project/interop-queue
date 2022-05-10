@@ -2,9 +2,9 @@ name: Build interop-queue-liquibase image, push to Nexus, and sync with ArgoCD
 
 on:
   workflow_run:
-    workflows: [Interop Queue DB Tests]
-    types: [completed]
-    branches: [master]
+    workflows: [ Interop Queue DB Tests ]
+    types: [ completed ]
+    branches: [ master ]
 
 jobs:
   get-info:
@@ -33,6 +33,7 @@ jobs:
       - name: Get tag from Gradle
         id: gradle_info
         run: |
+          git fetch --tags --unshallow
           TAG=$(./gradlew currentVersion | awk '{ if(/Project version:/) { print $3; exit } }' | cut -d\- -f1)
           echo ${TAG}
           echo "::set-output name=docker_image_tag::${TAG}"
