@@ -1,16 +1,21 @@
 plugins {
+    id("com.projectronin.interop.gradle.junit")
     id("com.projectronin.interop.gradle.spring")
-    id("com.projectronin.interop.gradle.ktorm")
-    id("com.projectronin.interop.gradle.mockk")
 }
 
 dependencies {
-    implementation(libs.interop.common)
     implementation(project(":interop-queue"))
+    implementation(libs.interop.common)
 
-    // Spring
+    implementation(libs.ktorm.core)
+    implementation(libs.ktorm.support.mysql)
     implementation("org.springframework:spring-context")
 
-    testImplementation(libs.interop.commonTestDb)
     testImplementation(project(":interop-queue-liquibase"))
+    testImplementation(libs.interop.commonTestDb)
+
+    testImplementation(libs.mockk)
+    testImplementation(libs.rider.core)
+
+    testRuntimeOnly(libs.bundles.test.mysql)
 }
