@@ -1,0 +1,22 @@
+io_queue_hl7:
+  - io_queue_hl7_id: 100
+    hl7_type: "MDM"
+    hl7_event: "MDMT02"
+    tenant_mnemonic: "TENANT"
+    text: "MSH|1231231"
+    create_instant: "2021-11-01 11:18:00 +0000"
+    read_instant: "regex:.+"
+  - io_queue_hl7_id: 101
+    hl7_type: "MDM"
+    hl7_event: "MDMT02"
+    tenant_mnemonic: "TENANT"
+    text: "MSH|1231231"
+    create_instant: "2021-11-01 11:23:00 +0000"
+    read_instant: "regex:.+"
+  - io_queue_hl7_id: 102
+    hl7_type: "MDM"
+    hl7_event: "MDMT06"
+    tenant_mnemonic: "TENANT"
+    text: "MSH|1231231"
+    create_instant: "2021-11-01 11:24:00 +0000"
+    read_instant: "regex:.+"

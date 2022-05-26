@@ -1,8 +1,11 @@
 package com.projectronin.interop.queue
 
+import com.projectronin.interop.common.hl7.EventType
+import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType
+import com.projectronin.interop.queue.model.ApiMessage
+import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
-import com.projectronin.interop.queue.model.MessageType
 
 /**
  * Interface defining a Queue service.
@@ -14,12 +17,21 @@ interface QueueService {
     fun enqueueMessages(messages: List<Message>)
 
     /**
-     * Reads [limit] [resourceType] [Message]s from the [messageType] Queue for the supplied [tenantMnemonic].
+     * Reads [limit] [resourceType] [ApiMessage]s from the API Queue for the supplied [tenantMnemonic].
      */
-    fun dequeueMessages(
+    fun dequeueApiMessages(
         tenantMnemonic: String,
-        messageType: MessageType,
         resourceType: ResourceType,
         limit: Int
-    ): List<Message>
+    ): List<ApiMessage>
+
+    /**
+     * Reads [limit] [hl7Type] (and optionally [hl7Event]) [HL7Message]s from the HL7 Queue for the supplied [tenantMnemonic].
+     */
+    fun dequeueHL7Messages(
+        tenantMnemonic: String,
+        hl7Type: MessageType,
+        hl7Event: EventType,
+        limit: Int
+    ): List<HL7Message>
 }

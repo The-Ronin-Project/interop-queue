@@ -1,9 +1,13 @@
 package com.projectronin.interop.queue.db.data
 
+import com.projectronin.interop.common.hl7.EventType
+import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.queue.db.data.binding.ApiMessageDOs
+import com.projectronin.interop.queue.db.data.binding.HL7MessageDOs
+import com.projectronin.interop.queue.model.ApiMessage
+import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
-import com.projectronin.interop.queue.model.MessageType
 import mu.KotlinLogging
 import org.ktorm.database.Database
 import org.ktorm.dsl.and
@@ -17,6 +21,7 @@ import org.ktorm.dsl.map
 import org.ktorm.dsl.orderBy
 import org.ktorm.dsl.select
 import org.ktorm.dsl.where
+import org.ktorm.schema.ColumnDeclaring
 import org.ktorm.support.mysql.LockingMode
 import org.ktorm.support.mysql.bulkInsert
 import org.ktorm.support.mysql.locking
@@ -32,45 +37,23 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
     val logger = KotlinLogging.logger { }
 
     /**
-     * Reads unread [messageType] messages for [resourceType] within [tenant]. The number of messages is controlled by the provided [limit]. If no limit is provided, then all unread messages will be included. All messages will be returned in descending order, with the oldest queued message first.
+     * Reads unread [ApiMessage] messages for [resourceType] within [tenant].
+     * The number of messages is controlled by the provided [limit].
+     * If no limit is provided, then all unread messages will be included.
+     * All messages will be returned in descending order, with the oldest queued message first.
      */
-    fun readMessages(
+    fun readApiMessages(
         tenant: String,
-        messageType: MessageType,
         resourceType: ResourceType,
         limit: Int? = null
-    ): List<Message> {
-        logger.info { "Reading ${limit ?: "All"} $resourceType messages from the $messageType queue for $tenant" }
-
-        val messages = when (messageType) {
-            MessageType.API -> readAPIMessages(tenant, resourceType, limit)
-            MessageType.HL7 -> TODO("Implement when HL7 message schema defined")
-        }
-
-        logger.info { "${messages.size} $resourceType messages found." }
-        return messages
-    }
-
-    /**
-     * Inserts the supplied [messages] into the database.
-     */
-    fun insertMessages(messages: List<Message>) {
-        logger.info { "Adding ${messages.size} messages to DB queue" }
-
-        val messagesByType = messages.groupBy { it.messageType }
-
-        for ((type, typedMessages) in messagesByType) {
-            when (type) {
-                MessageType.HL7 -> TODO("Implement when HL7 message schema defined")
-                MessageType.API -> insertAPIMessages(typedMessages)
-            }
-        }
-        logger.info { "Messages successfully added to queue" }
-    }
-
-    private fun readAPIMessages(tenant: String, resourceType: ResourceType, limit: Int?): List<Message> {
+    ): List<ApiMessage> {
+        logger.info { "Reading ${limit ?: "All"} $resourceType messages from the API queue for $tenant" }
         var query = database.from(ApiMessageDOs).select()
-            .where((ApiMessageDOs.resourceType eq resourceType) and (ApiMessageDOs.tenant eq tenant) and (ApiMessageDOs.readInstant.isNull()))
+            .where(
+                (ApiMessageDOs.resourceType eq resourceType)
+                    and (ApiMessageDOs.tenant eq tenant)
+                    and (ApiMessageDOs.readInstant.isNull())
+            )
             .orderBy(ApiMessageDOs.createInstant.asc())
         query = limit?.let { query.limit(it) } ?: query
         val apiMessages = query.locking(LockingMode.FOR_UPDATE).map { ApiMessageDOs.createEntity(it) }
@@ -78,7 +61,7 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
         // Stamp the read instant on all read messages
         val readInstant = Instant.now()
         database.batchUpdate(ApiMessageDOs) {
-            for (message in apiMessages) {
+            apiMessages.forEach { message ->
                 item {
                     set(it.readInstant, readInstant)
                     where {
@@ -88,21 +71,107 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
             }
         }
 
-        return apiMessages.map {
-            Message(
-                it.id.toString(), MessageType.API, it.resourceType, it.tenant, it.text
+        val messages = apiMessages.map {
+            ApiMessage(
+                it.id.toString(), it.tenant, it.text, it.resourceType
             )
         }
+
+        logger.info { "${messages.size} $resourceType messages found." }
+        return messages
+    }
+    /**
+     * Reads unread [HL7Message] messages for [MessageType] within [tenant].
+     * Messages can be further restricted by [EventType] with all included by default.
+     * The number of messages is controlled by the provided [limit].
+     * If no limit is provided, then all unread messages will be included.
+     * All messages will be returned in descending order, with the oldest queued message first.
+     */
+    fun readHL7Messages(
+        tenant: String,
+        type: MessageType,
+        event: EventType? = null,
+        limit: Int? = null
+    ): List<HL7Message> {
+        logger.info { "Reading ${limit ?: "All"} [${event ?: type}] messages from the Hl7 queue for $tenant" }
+
+        var query = database.from(HL7MessageDOs).select()
+            .where {
+                val conditions = ArrayList<ColumnDeclaring<Boolean>>()
+                conditions += HL7MessageDOs.hl7Type eq type
+                conditions += HL7MessageDOs.tenant eq tenant
+                conditions += HL7MessageDOs.readInstant.isNull()
+                if (event != null) {
+                    conditions += HL7MessageDOs.hl7Event eq event
+                }
+                conditions.reduce { a, b -> a and b }
+            }
+            .orderBy(HL7MessageDOs.createInstant.asc())
+        query = limit?.let { query.limit(it) } ?: query
+        val hl7Messages = query.locking(LockingMode.FOR_UPDATE).map { HL7MessageDOs.createEntity(it) }
+
+        val readInstant = Instant.now()
+        database.batchUpdate(HL7MessageDOs) {
+            hl7Messages.forEach { message ->
+                item {
+                    set(it.readInstant, readInstant)
+                    where {
+                        it.id eq message.id
+                    }
+                }
+            }
+        }
+        val messages = hl7Messages.map {
+            HL7Message(
+                it.id.toString(), it.tenant, it.text, it.hl7Type, it.hl7Event
+            )
+        }
+        logger.info { "${messages.size} $event messages found." }
+        return messages
     }
 
-    private fun insertAPIMessages(apiMessages: List<Message>) {
+    /**
+     * Inserts the supplied [messages] into the database.
+     */
+    fun insertMessages(messages: List<Message>) {
+        logger.info { "Adding ${messages.size} messages to DB queue" }
+
+        val messagesByType = messages.groupBy { it.javaClass.kotlin }
+
+        for ((type, typedMessages) in messagesByType) {
+            when (type) {
+                HL7Message::class -> insertHl7Messages(typedMessages as List<HL7Message>)
+                ApiMessage::class -> insertAPIMessages(typedMessages as List<ApiMessage>)
+            }
+        }
+        logger.info { "Messages successfully added to queue" }
+    }
+
+    private fun insertAPIMessages(apiMessages: List<ApiMessage>) {
         logger.info { "Adding ${apiMessages.size} API messages to DB queue" }
 
         val createInstant = Instant.now()
         database.bulkInsert(ApiMessageDOs) {
-            for (message in apiMessages) {
+            apiMessages.forEach { message ->
                 item {
                     set(it.resourceType, message.resourceType)
+                    set(it.tenant, message.tenant)
+                    set(it.text, message.text)
+                    set(it.createInstant, createInstant)
+                }
+            }
+        }
+    }
+
+    private fun insertHl7Messages(hl7Messages: List<HL7Message>) {
+        logger.info { "Adding ${hl7Messages.size} Hl7 messages to DB queue" }
+
+        val createInstant = Instant.now()
+        database.bulkInsert(HL7MessageDOs) {
+            hl7Messages.forEach { message ->
+                item {
+                    set(it.hl7Type, message.hl7Type)
+                    set(it.hl7Event, message.hl7Event)
                     set(it.tenant, message.tenant)
                     set(it.text, message.text)
                     set(it.createInstant, createInstant)

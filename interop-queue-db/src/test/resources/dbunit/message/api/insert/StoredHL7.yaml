@@ -1,0 +1,9 @@
+io_queue_hl7:
+  - io_queue_hl7_id: "regex:\\d+"
+    hl7_type: "MDM"
+    hl7_event: "MDMT02"
+    tenant_mnemonic: "TEST1"
+    text: '''MSH|^~\&|RONIN|RONIN||HOSPITAL|20200524130600||MDM^T02|1|P|2.3|||NE|
+             EVN|T02|20200524130600|'''
+    create_instant: "regex:.+"
+    read_instant: "regex:.+"

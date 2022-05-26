@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
-class MessageTest {
+class ApiMessageTest {
     @Test
     fun `check defaults`() {
-        val message = Message(
-            messageType = MessageType.API,
-            resourceType = ResourceType.PATIENT,
+        val message = ApiMessage(
             tenant = "tenant",
-            text = "text"
+            text = "text",
+            resourceType = ResourceType.PATIENT
         )
         assertNull(message.id)
         assertEquals(MessageType.API, message.messageType)
@@ -23,8 +22,8 @@ class MessageTest {
 
     @Test
     fun `check getters`() {
-        val message = Message(
-            "id", MessageType.API, ResourceType.PATIENT, "tenant", "text"
+        val message = ApiMessage(
+            "id", "tenant", "text", ResourceType.PATIENT
         )
         assertEquals("id", message.id)
         assertEquals(MessageType.API, message.messageType)

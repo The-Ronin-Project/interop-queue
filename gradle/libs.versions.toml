@@ -1,5 +1,5 @@
 [libraries]
-interop-common = "com.projectronin.interop:interop-common:1.0.0"
+interop-common = "com.projectronin.interop:interop-common:2.0.0-SNAPSHOT"
 interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:1.0.0"
 ktorm-core = "org.ktorm:ktorm-core:3.4.1"
 ktorm-support-mysql = "org.ktorm:ktorm-support-mysql:3.4.1"

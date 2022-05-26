@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: io-queue-hl7-create
+      author: Sam Felt
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            - tableExists:
+                tableName: io_queue_hl7
+      changes:
+        - createTable:
+            tableName: io_queue_hl7
+            columns:
+              - column:
+                  name: io_queue_hl7_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_io_queue_hl7
+              - column:
+                  name: tenant_mnemonic
+                  type: java.sql.Types.VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: CLOB
+                  constraints:
+                    nullable: false
+              - column:
+                  name: create_instant
+                  type: TIMESTAMP
+                  constraints:
+                    # This must be nullable to prevent weird MySQL settings where the timestamp may get updated to the current time.
+                    nullable: true
+              - column:
+                  name: read_instant
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: hl7_type
+                  type: java.sql.Types.VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hl7_event
+                  type: java.sql.Types.VARCHAR(30)
+                  constraints:
+                    nullable: false
