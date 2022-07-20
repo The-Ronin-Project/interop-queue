@@ -31,7 +31,7 @@ interface QueueService {
     fun dequeueHL7Messages(
         tenantMnemonic: String,
         hl7Type: MessageType,
-        hl7Event: EventType,
+        hl7Event: EventType?,
         limit: Int
     ): List<HL7Message>
 }

@@ -1,6 +1,7 @@
 package com.projectronin.interop.queue.db
 
 import com.projectronin.interop.common.hl7.EventType
+import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.queue.QueueService
 import com.projectronin.interop.queue.db.data.MessageDAO
@@ -24,8 +25,8 @@ class DBQueueService(private val messageDAO: MessageDAO) : QueueService {
 
     override fun dequeueHL7Messages(
         tenantMnemonic: String,
-        hl7Type: com.projectronin.interop.common.hl7.MessageType,
-        hl7Event: EventType,
+        hl7Type: MessageType,
+        hl7Event: EventType?,
         limit: Int
     ): List<HL7Message> = messageDAO.readHL7Messages(tenantMnemonic, hl7Type, hl7Event, limit)
 }
