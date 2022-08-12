@@ -19,3 +19,9 @@ dependencies {
 
     testRuntimeOnly(libs.bundles.test.mysql)
 }
+
+tasks.test {
+    // Lets us mock the system time in unit tests
+    // https://github.com/mockk/mockk/issues/681
+    jvmArgs("--add-opens", "java.base/java.time=ALL-UNNAMED")
+}

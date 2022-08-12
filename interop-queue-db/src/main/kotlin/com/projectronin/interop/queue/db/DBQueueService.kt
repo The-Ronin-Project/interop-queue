@@ -8,6 +8,7 @@ import com.projectronin.interop.queue.db.data.MessageDAO
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
+import com.projectronin.interop.queue.model.QueueStatus
 import org.springframework.stereotype.Service
 
 /**
@@ -29,4 +30,6 @@ class DBQueueService(private val messageDAO: MessageDAO) : QueueService {
         hl7Event: EventType?,
         limit: Int
     ): List<HL7Message> = messageDAO.readHL7Messages(tenantMnemonic, hl7Type, hl7Event, limit)
+
+    override fun getStatus(): QueueStatus = messageDAO.getStatus()
 }

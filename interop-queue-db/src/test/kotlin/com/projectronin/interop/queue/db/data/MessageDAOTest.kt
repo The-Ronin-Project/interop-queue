@@ -11,8 +11,15 @@ import com.projectronin.interop.common.test.database.ktorm.KtormHelper
 import com.projectronin.interop.common.test.database.liquibase.LiquibaseTest
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import java.time.Duration
+import java.time.Instant
 
 @LiquibaseTest(changeLog = "queue/db/changelog/queue.db.changelog-master.yaml")
 class MessageDAOTest {
@@ -196,5 +203,75 @@ class MessageDAOTest {
         dao.insertMessages(listOf(message1))
         val messages = dao.readHL7Messages("TEST1", MessageType.MDM)
         assertEquals(exampleMessage, messages.first().text)
+    }
+
+    @Test
+    @DataSet(value = ["/dbunit/message/api/read/ApiAndHl7Messages.yaml"], cleanAfter = true)
+    fun `can get queue status`() {
+        // Mock the system clock so we can test queue age accurately
+        val now = Instant.parse("2022-08-10T00:00:00.00Z")
+        mockkStatic(Instant::class)
+        every { Instant.now() } returns now
+
+        val dao = MessageDAO(KtormHelper.database())
+        val status = dao.getStatus()
+
+        // From sample data
+        val apiCreateInstant = Instant.parse("2021-11-01T11:18:00.00Z")
+        val hl7CreateInstant1 = Instant.parse("2021-11-01T11:18:00.00Z")
+        val hl7CreateInstant2 = Instant.parse("2022-08-08T11:24:00.00Z")
+
+        // Api depth
+        assertEquals(1, status.apiDepth.size)
+        assertNull(status.apiDepth["FAKE"])
+        assertNotNull(status.apiDepth["TENANT"])
+        assertEquals(3, status.apiDepth["TENANT"])
+
+        // Api age
+        assertEquals(1, status.apiAge.size)
+        assertNull(status.apiAge["FAKE"])
+        assertNotNull(status.apiAge["TENANT"])
+        assertEquals(Duration.between(apiCreateInstant, now).seconds.toInt(), status.apiAge["TENANT"])
+
+        // HL7 depth
+        assertEquals(2, status.hl7Depth.size)
+        assertNull(status.hl7Depth["FAKE"])
+        assertNotNull(status.hl7Depth["TENANT1"])
+        assertEquals(1, status.hl7Depth["TENANT1"])
+        assertNotNull(status.hl7Depth["TENANT2"])
+        assertEquals(1, status.hl7Depth["TENANT2"])
+
+        // HL7 age
+        assertEquals(2, status.hl7Age.size)
+        assertNull(status.hl7Age["FAKE"])
+        assertNotNull(status.hl7Age["TENANT1"])
+        assertEquals(Duration.between(hl7CreateInstant1, now).seconds.toInt(), status.hl7Age["TENANT1"])
+        assertEquals(Duration.between(hl7CreateInstant2, now).seconds.toInt(), status.hl7Age["TENANT2"])
+
+        unmockkStatic(Instant::class)
+    }
+
+    @Test
+    @DataSet(value = ["/dbunit/message/api/read/NoMessages.yaml"], cleanAfter = true)
+    fun `getStatus handles empty queues`() {
+        val dao = MessageDAO(KtormHelper.database())
+        val status = dao.getStatus()
+
+        assertEquals(0, status.apiAge.size)
+        assertEquals(0, status.apiDepth.size)
+        assertEquals(0, status.hl7Age.size)
+        assertEquals(0, status.hl7Depth.size)
+    }
+
+    @Test
+    @DataSet(value = ["/dbunit/message/api/read/AllMessagesReadApiAndHl7.yaml"], cleanAfter = true)
+    fun `getStatus handles all messages read`() {
+        val dao = MessageDAO(KtormHelper.database())
+        val status = dao.getStatus()
+
+        assertEquals(0, status.apiAge.size)
+        assertEquals(0, status.apiDepth.size)
+        assertEquals(0, status.hl7Age.size)
+        assertEquals(0, status.hl7Depth.size)
     }
 }

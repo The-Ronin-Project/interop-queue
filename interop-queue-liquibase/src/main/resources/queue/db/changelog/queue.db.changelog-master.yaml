@@ -3,3 +3,5 @@ databaseChangeLog:
       file: queue/db/changelog/queue.db.changelog-1.0.0.yaml
   - include:
       file: queue/db/changelog/queue.db.changelog-1.1.0.yaml
+  - include:
+      file: queue/db/changelog/queue.db.changelog-1.1.1.yaml

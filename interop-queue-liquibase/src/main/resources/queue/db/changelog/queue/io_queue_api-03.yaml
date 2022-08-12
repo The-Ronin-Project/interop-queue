@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id:  io-queue-api-create-read-instant-index
+      author:  Mike Esposito
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            - indexExists:
+                indexName: idx_api_read_instant
+      changes:
+        - createIndex:
+            clustered:  false
+            columns:
+              - column:
+                  name:  read_instant
+            indexName:  idx_api_read_instant
+            tableName:  io_queue_api
+            unique:  false
+  - changeSet:
+      id: io-queue-hl7-create-read-instant-index
+      author: Mike Esposito
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            - indexExists:
+                indexName: idx_hl7_read_instant
+      changes:
+        - createIndex:
+            clustered: false
+            columns:
+              - column:
+                  name: read_instant
+            indexName: idx_hl7_read_instant
+            tableName: io_queue_hl7
+            unique: false

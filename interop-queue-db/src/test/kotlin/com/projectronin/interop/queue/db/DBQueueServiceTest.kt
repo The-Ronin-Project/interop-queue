@@ -5,6 +5,7 @@ import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.queue.db.data.MessageDAO
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
+import com.projectronin.interop.queue.model.QueueStatus
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -105,5 +106,21 @@ class DBQueueServiceTest {
         verify(exactly = 1) {
             messageDAO.readHL7Messages("TENANT", HL7MessageType.MDM, EventType.MDMT02, 2)
         }
+    }
+
+    @Test
+    fun `can get status`() {
+        val queueStatus = QueueStatus(
+            apiDepth = mapOf("Tenant" to 2),
+            apiAge = mapOf("Tenant" to 30),
+            hl7Depth = mapOf("Tenant" to 4),
+            hl7Age = mapOf("Tenant" to 45)
+        )
+
+        every {
+            messageDAO.getStatus()
+        } returns queueStatus
+
+        assertEquals(queueStatus, service.getStatus())
     }
 }

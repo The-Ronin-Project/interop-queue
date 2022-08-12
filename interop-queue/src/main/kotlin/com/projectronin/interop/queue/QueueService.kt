@@ -6,6 +6,7 @@ import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
+import com.projectronin.interop.queue.model.QueueStatus
 
 /**
  * Interface defining a Queue service.
@@ -34,4 +35,9 @@ interface QueueService {
         hl7Event: EventType?,
         limit: Int
     ): List<HL7Message>
+
+    /**
+     * Returns the current status of the queue.
+     */
+    fun getStatus(): QueueStatus
 }

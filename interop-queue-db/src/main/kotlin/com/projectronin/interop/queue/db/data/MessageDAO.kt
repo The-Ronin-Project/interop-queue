@@ -8,16 +8,21 @@ import com.projectronin.interop.queue.db.data.binding.HL7MessageDOs
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
+import com.projectronin.interop.queue.model.QueueStatus
 import mu.KotlinLogging
 import org.ktorm.database.Database
 import org.ktorm.dsl.and
 import org.ktorm.dsl.asc
+import org.ktorm.dsl.associateBy
 import org.ktorm.dsl.batchUpdate
+import org.ktorm.dsl.count
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.from
+import org.ktorm.dsl.groupBy
 import org.ktorm.dsl.isNull
 import org.ktorm.dsl.limit
 import org.ktorm.dsl.map
+import org.ktorm.dsl.min
 import org.ktorm.dsl.orderBy
 import org.ktorm.dsl.select
 import org.ktorm.dsl.where
@@ -27,6 +32,7 @@ import org.ktorm.support.mysql.bulkInsert
 import org.ktorm.support.mysql.locking
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import java.time.Duration
 import java.time.Instant
 
 /**
@@ -139,12 +145,66 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
         val messagesByType = messages.groupBy { it.javaClass.kotlin }
 
         for ((type, typedMessages) in messagesByType) {
+            @Suppress("UNCHECKED_CAST")
             when (type) {
                 HL7Message::class -> insertHl7Messages(typedMessages as List<HL7Message>)
                 ApiMessage::class -> insertAPIMessages(typedMessages as List<ApiMessage>)
             }
         }
         logger.info { "Messages successfully added to queue" }
+    }
+
+    /**
+     * Returns the current status of the queue.
+     */
+    fun getStatus(): QueueStatus {
+        val count = count().aliased("count")
+
+        logger.info { "Reading the status of the API queue" }
+        val minApiAge = min(ApiMessageDOs.createInstant).aliased("minApiQueue")
+
+        // Create api queue map of tenant to depth and age
+        val apiQueueStatus = database
+            .from(ApiMessageDOs)
+            .select(ApiMessageDOs.tenant, count, minApiAge)
+            .where {
+                ApiMessageDOs.readInstant.isNull()
+            }
+            .groupBy(ApiMessageDOs.tenant)
+            .associateBy(
+                { it[ApiMessageDOs.tenant]!! },
+                {
+                    val duration = Duration.between(it.getInstant(minApiAge.declaredName!!), Instant.now())
+                    Pair(it.getInt(count.declaredName!!), duration.seconds.toInt())
+                }
+            )
+
+        logger.info { "Reading the status of the HL7 queue" }
+        val minHl7Age = min(HL7MessageDOs.createInstant).aliased("minHl7Queue")
+
+        // Create hl7 queue map of tenant to depth and age
+        val hl7QueueStatus = database
+            .from(HL7MessageDOs)
+            .select(HL7MessageDOs.tenant, count, minHl7Age)
+            .where {
+                HL7MessageDOs.readInstant.isNull()
+            }
+            .groupBy(HL7MessageDOs.tenant)
+            .associateBy(
+                { it[HL7MessageDOs.tenant]!! },
+                {
+                    val duration = Duration.between(it.getInstant(minHl7Age.declaredName!!), Instant.now())
+                    Pair(it.getInt(count.declaredName!!), duration.seconds.toInt())
+                }
+            )
+
+        // Value is a pair with queue depth first and age second
+        return QueueStatus(
+            apiDepth = apiQueueStatus.mapValues { it.value.first },
+            apiAge = apiQueueStatus.mapValues { it.value.second },
+            hl7Depth = hl7QueueStatus.mapValues { it.value.first },
+            hl7Age = hl7QueueStatus.mapValues { it.value.second },
+        )
     }
 
     private fun insertAPIMessages(apiMessages: List<ApiMessage>) {
