@@ -1,0 +1,56 @@
+services:
+  interops-queue-monitor:
+    build:
+      context: ./interop-queue-monitor
+      dockerfile: Dockerfile
+    image: interop-queue-monitor:local
+    environment:
+      - SPRING_QUEUE_DATASOURCE_JDBCURL=jdbc:mysql://queue:secret@db-queue:3306/interop-queue
+      - DD_AGENT_HOST=datadog-agent
+    volumes:
+      - ./src/it/resources/:/config
+    depends_on:
+      liquibase-queue:
+        condition: service_completed_successfully
+      db-queue:
+        condition: service_healthy
+      datadog-agent:
+        condition: service_started
+
+  # Queue Database
+  db-queue:
+    image: mysql/mysql-server
+    container_name: db-queue
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_DATABASE: interop-queue
+      MYSQL_USER: queue
+      MYSQL_PASSWORD: secret
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "ehr", "-psecret" ]
+      timeout: 5s
+      retries: 10
+  # Queue Migration
+  liquibase-queue:
+    container_name: liquibase-queue
+    image: docker-repo.devops.projectronin.io/interop-queue-liquibase:dev
+    environment:
+      - JDBC_URL=jdbc:mysql://queue:secret@db-queue:3306/interop-queue
+    depends_on:
+      db-queue:
+        condition: service_healthy
+
+  # Data Dog
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    environment:
+      DD_ENV: local
+      DD_APM_ENABLED: 'true'
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: 'true'
+      DD_API_KEY: ${DD_API_KEY}
+      DD_LOGS_ENABLED: 'true'
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: 'true'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

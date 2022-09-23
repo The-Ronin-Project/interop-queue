@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import com.projectronin.interop.common.hl7.MessageType as HL7MessageType
+
 class DBQueueServiceTest {
     private lateinit var messageDAO: MessageDAO
     private lateinit var service: DBQueueService
@@ -82,13 +83,13 @@ class DBQueueServiceTest {
             tenant = "TENANT",
             text = "Text",
             hl7Type = HL7MessageType.MDM,
-            hl7Event = EventType.MDMT02,
+            hl7Event = EventType.MDMT02
         )
         val message2 = HL7Message(
             tenant = "TENANT",
             text = "Text",
             hl7Type = HL7MessageType.MDM,
-            hl7Event = EventType.MDMT02,
+            hl7Event = EventType.MDMT02
         )
 
         every {

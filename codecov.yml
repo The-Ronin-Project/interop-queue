@@ -16,6 +16,11 @@ coverage:
         threshold: 1%
         flags:
           - db
+      monitor:
+        target: auto
+        threshold: 1%
+        flags:
+          - monitor
 
     patch:
       api:
@@ -30,6 +35,12 @@ coverage:
         base: auto
         flags:
           - db
+      monitor:
+        target: 80
+        threshold: 1%
+        base: auto
+        flags:
+          - monitor
 
 comment:
   layout: "reach, diff, flags, files"
@@ -48,4 +59,8 @@ flags:
   db:
     paths:
       - interop-queue-db/
+    carryforward: true
+  monitor:
+    paths:
+      - interop-queue-monitor/
     carryforward: true
