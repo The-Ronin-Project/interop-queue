@@ -17,7 +17,7 @@ pluginManagement {
         id("com.projectronin.interop.gradle.publish") version interopGradleVersion
         id("com.projectronin.interop.gradle.spring") version interopGradleVersion
         id("com.projectronin.interop.gradle.version") version interopGradleVersion
-        id("org.springframework.boot") version "2.7.3"
+        id("org.springframework.boot") version "2.7.4"
     }
 
     repositories {
