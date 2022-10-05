@@ -8,7 +8,7 @@ mockk = "io.mockk:mockk:1.13.2"
 mysql-connector-java = "mysql:mysql-connector-java:8.0.30"
 rider-core = "com.github.database-rider:rider-core:1.34.0"
 spring-boot-parent = "org.springframework.boot:spring-boot-parent:2.7.4"
-testcontainers-mysql = "org.testcontainers:mysql:1.17.4"
+testcontainers-mysql = "org.testcontainers:mysql:1.17.5"
 
 [bundles]
 test-mysql = ["mysql-connector-java", "testcontainers-mysql"]
