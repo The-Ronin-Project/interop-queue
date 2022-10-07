@@ -1,7 +1,6 @@
 plugins {
     id("com.projectronin.interop.gradle.junit")
-    id("com.projectronin.interop.gradle.spring")
-    id("org.springframework.boot")
+    id("com.projectronin.interop.gradle.spring-boot")
 }
 
 dependencies {
