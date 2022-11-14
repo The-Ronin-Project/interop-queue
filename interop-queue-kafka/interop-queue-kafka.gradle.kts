@@ -5,11 +5,13 @@ plugins {
 
 dependencies {
     implementation(project(":interop-queue"))
-    implementation(project(":interop-queue-kafka"))
     implementation(libs.interop.common)
+    implementation(libs.interop.kafka)
 
     implementation(libs.ktorm.core)
     implementation(libs.ktorm.support.mysql)
+    implementation(libs.ronin.kafka)
+    implementation(libs.ronin.kafka.event.resource)
     implementation("org.springframework:spring-context")
 
     testImplementation(project(":interop-queue-liquibase"))
