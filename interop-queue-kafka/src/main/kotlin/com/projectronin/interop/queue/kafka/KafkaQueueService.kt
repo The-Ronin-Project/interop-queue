@@ -57,7 +57,7 @@ class KafkaQueueService(
                     val event = KafkaEvent(
                         domain = topic.systemName,
                         resource = type,
-                        action = KafkaAction.PUBLISH,
+                        action = KafkaAction.RETRIEVE,
                         resourceId = it.id!!,
                         data = it.text
                     )
