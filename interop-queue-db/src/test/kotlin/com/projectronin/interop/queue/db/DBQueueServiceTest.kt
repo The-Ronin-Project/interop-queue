@@ -24,13 +24,13 @@ class DBQueueServiceTest {
     fun setup() {
         messageDAO = mockk()
 
-        service = DBQueueService(messageDAO)
+        service = DBQueueService(messageDAO, mockk())
     }
 
     @Test
     fun `can enqueue messages`() {
         val message1 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
+            resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
             text = "Text"
         )
@@ -51,12 +51,12 @@ class DBQueueServiceTest {
     @Test
     fun `can dequeue api messages`() {
         val message1 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
+            resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
             text = "Text"
         )
         val message2 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
+            resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
             text = "Text"
         )
@@ -64,16 +64,16 @@ class DBQueueServiceTest {
         every {
             messageDAO.readApiMessages(
                 "TENANT",
-                ResourceType.PATIENT,
+                ResourceType.PRACTITIONER,
                 2
             )
         } returns listOf(message1, message2)
 
-        val messages = service.dequeueApiMessages("TENANT", ResourceType.PATIENT, 2)
+        val messages = service.dequeueApiMessages("TENANT", ResourceType.PRACTITIONER, 2)
         assertEquals(listOf(message1, message2), messages)
 
         verify(exactly = 1) {
-            messageDAO.readApiMessages("TENANT", ResourceType.PATIENT, 2)
+            messageDAO.readApiMessages("TENANT", ResourceType.PRACTITIONER, 2)
         }
     }
 

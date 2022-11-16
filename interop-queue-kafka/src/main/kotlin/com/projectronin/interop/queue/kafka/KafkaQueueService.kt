@@ -15,6 +15,7 @@ import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
 import com.projectronin.interop.queue.model.QueueStatus
+import com.projectronin.kafka.RoninProducer
 import com.projectronin.kafka.data.RoninEvent
 import com.projectronin.kafka.data.RoninEventResult
 import org.springframework.stereotype.Service
@@ -30,6 +31,7 @@ class KafkaQueueService(
     retrieveTopics: List<RetrieveTopic>
 ) : QueueService {
     private val retrieveTopicsByResourceType = retrieveTopics.groupBy { it.resourceType.lowercase() }
+    private val producersByTopicName: MutableMap<String, RoninProducer> = mutableMapOf()
     private val typeMap: Map<String, KClass<*>> = mapOf(
         "ronin.interop.resource.retrieve" to InteropResourceRetrieveV1::class,
     )
@@ -37,7 +39,7 @@ class KafkaQueueService(
     fun RoninEvent<*>.toAPIMessage(type: ResourceType): ApiMessage {
         val resourceRetrieve = this.data as InteropResourceRetrieveV1
         return ApiMessage(
-            id = UUID.randomUUID().toString(),
+            id = this.id,
             tenant = resourceRetrieve.tenantId,
             resourceType = type,
             text = resourceRetrieve.resourceJson
@@ -49,20 +51,21 @@ class KafkaQueueService(
         val apiMessagesByType = apiMessages.groupBy { it.resourceType.name.lowercase() }
         apiMessagesByType.forEach { (type, list) ->
             val topic = retrieveTopicsByResourceType[type]?.singleOrNull() ?: return@forEach
-            val messagesByTenant = list.groupBy { it.tenant }
-            messagesByTenant.forEach { (tenant, list) ->
-                val producer =
-                    createProducer(topicName = topic.getTopicName(kafkaConfig.cloud, tenant), topic, kafkaConfig)
-                list.forEach {
-                    val event = KafkaEvent(
-                        domain = topic.systemName,
-                        resource = type,
-                        action = KafkaAction.RETRIEVE,
-                        resourceId = it.id!!,
-                        data = it.text
-                    )
-                    producer.send(event.type, event.subject, event.data)
-                }
+            val producer = producersByTopicName.computeIfAbsent(topic.topicName) { createProducer(topic, kafkaConfig) }
+            list.forEach {
+                val data = InteropResourceRetrieveV1(
+                    resourceType = type,
+                    resourceJson = it.text,
+                    tenantId = it.tenant
+                )
+                val event = KafkaEvent(
+                    domain = topic.systemName,
+                    resource = type,
+                    action = KafkaAction.RETRIEVE,
+                    resourceId = it.id ?: UUID.randomUUID().toString(),
+                    data = data
+                )
+                producer.send(event.type, event.subject, event.data)
             }
         }
     }
@@ -74,10 +77,13 @@ class KafkaQueueService(
     ): List<ApiMessage> {
         val messageList = mutableListOf<ApiMessage>()
         val topic = retrieveTopicsByResourceType[resourceType.name.lowercase()]?.singleOrNull() ?: return emptyList()
-        val consumer = createConsumer(topic.getTopicName(kafkaConfig.cloud, tenantMnemonic), kafkaConfig, typeMap)
+        val consumer = createConsumer(topic, typeMap, kafkaConfig)
+        val start = System.currentTimeMillis()
         consumer.process {
             messageList.add(it.toAPIMessage(resourceType))
-            if (messageList.size == limit) consumer.stop()
+            // stop if 5 seconds have passed, or we have reached our message limit
+            // note that the 'limit' might not be exact, since there could still be messages left to process
+            if (messageList.size == limit || System.currentTimeMillis() - start > 5000) consumer.stop()
             RoninEventResult.ACK
         }
         return messageList

@@ -10,22 +10,23 @@ import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
 import com.projectronin.interop.queue.model.QueueStatus
+import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 
 /**
  * Database-based implementation of [QueueService]
  */
+@Primary
 @Service
 class DBQueueService(private val messageDAO: MessageDAO, private val kafkaQueue: KafkaQueueService) : QueueService {
     override fun enqueueMessages(messages: List<Message>) {
         val nonPatientMessages = mutableListOf<Message>()
         val patientMessages = mutableListOf<Message>()
         messages.forEach {
-            if (it is HL7Message) nonPatientMessages.add(it)
             if (it is ApiMessage && it.resourceType == ResourceType.PATIENT) patientMessages.add(it)
             else nonPatientMessages.add(it)
         }
-        kafkaQueue.enqueueMessages(patientMessages)
+        if (patientMessages.isNotEmpty()) kafkaQueue.enqueueMessages(patientMessages)
         return messageDAO.insertMessages(messages)
     }
 
