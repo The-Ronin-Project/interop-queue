@@ -4,12 +4,6 @@ import com.projectronin.event.interop.patient.retrieve.v1.InteropResourceRetriev
 import com.projectronin.interop.common.hl7.EventType
 import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType
-import com.projectronin.interop.kafka.client.createConsumer
-import com.projectronin.interop.kafka.client.createProducer
-import com.projectronin.interop.kafka.config.KafkaConfig
-import com.projectronin.interop.kafka.model.KafkaAction
-import com.projectronin.interop.kafka.model.KafkaEvent
-import com.projectronin.interop.kafka.model.RetrieveTopic
 import com.projectronin.interop.queue.QueueService
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
@@ -19,7 +13,9 @@ import com.projectronin.kafka.RoninProducer
 import com.projectronin.kafka.data.RoninEvent
 import com.projectronin.kafka.data.RoninEventResult
 import org.springframework.stereotype.Service
+import java.util.Timer
 import java.util.UUID
+import kotlin.concurrent.schedule
 import kotlin.reflect.KClass
 
 /**
@@ -60,7 +56,7 @@ class KafkaQueueService(
                 )
                 val event = KafkaEvent(
                     domain = topic.systemName,
-                    resource = type,
+                    resource = "resource",
                     action = KafkaAction.RETRIEVE,
                     resourceId = it.id ?: UUID.randomUUID().toString(),
                     data = data
@@ -78,12 +74,14 @@ class KafkaQueueService(
         val messageList = mutableListOf<ApiMessage>()
         val topic = retrieveTopicsByResourceType[resourceType.name.lowercase()]?.singleOrNull() ?: return emptyList()
         val consumer = createConsumer(topic, typeMap, kafkaConfig)
-        val start = System.currentTimeMillis()
+        Timer("poll").schedule(5000) {
+            consumer.stop()
+        }
         consumer.process {
             messageList.add(it.toAPIMessage(resourceType))
             // stop if 5 seconds have passed, or we have reached our message limit
             // note that the 'limit' might not be exact, since there could still be messages left to process
-            if (messageList.size == limit || System.currentTimeMillis() - start > 5000) consumer.stop()
+            if (messageList.size == limit) consumer.stop()
             RoninEventResult.ACK
         }
         return messageList
