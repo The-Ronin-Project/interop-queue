@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(project(":interop-queue"))
     implementation(libs.interop.common)
+    implementation(libs.interop.kafka)
 
     implementation(libs.ktorm.core)
     implementation(libs.ktorm.support.mysql)

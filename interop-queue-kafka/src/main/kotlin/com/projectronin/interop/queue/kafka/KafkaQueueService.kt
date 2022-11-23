@@ -4,6 +4,12 @@ import com.projectronin.event.interop.patient.retrieve.v1.InteropResourceRetriev
 import com.projectronin.interop.common.hl7.EventType
 import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType
+import com.projectronin.interop.kafka.client.createConsumer
+import com.projectronin.interop.kafka.client.createProducer
+import com.projectronin.interop.kafka.config.KafkaConfig
+import com.projectronin.interop.kafka.model.KafkaAction
+import com.projectronin.interop.kafka.model.KafkaEvent
+import com.projectronin.interop.kafka.model.RetrieveTopic
 import com.projectronin.interop.queue.QueueService
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
@@ -74,7 +80,7 @@ class KafkaQueueService(
         val messageList = mutableListOf<ApiMessage>()
         val topic = retrieveTopicsByResourceType[resourceType.name.lowercase()]?.singleOrNull() ?: return emptyList()
         val consumer = createConsumer(topic, typeMap, kafkaConfig)
-        Timer("poll").schedule(5000) {
+        Timer("poll").schedule(10000) {
             consumer.stop()
         }
         consumer.process {

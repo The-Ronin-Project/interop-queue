@@ -20,13 +20,10 @@ import org.springframework.stereotype.Service
 @Service
 class DBQueueService(private val messageDAO: MessageDAO, private val kafkaQueue: KafkaQueueService) : QueueService {
     override fun enqueueMessages(messages: List<Message>) {
-        val nonPatientMessages = mutableListOf<Message>()
-        val patientMessages = mutableListOf<Message>()
-        messages.forEach {
-            if (it is ApiMessage && it.resourceType == ResourceType.PATIENT) patientMessages.add(it)
-            else nonPatientMessages.add(it)
-        }
+        // call kafka queue for patients only
+        val patientMessages = messages.filterIsInstance<ApiMessage>().filter { it.resourceType == ResourceType.PATIENT }
         if (patientMessages.isNotEmpty()) kafkaQueue.enqueueMessages(patientMessages)
+        // still send all events to DB queue for now.
         return messageDAO.insertMessages(messages)
     }
 
@@ -35,9 +32,6 @@ class DBQueueService(private val messageDAO: MessageDAO, private val kafkaQueue:
         resourceType: ResourceType,
         limit: Int
     ): List<ApiMessage> {
-        if (resourceType == ResourceType.PATIENT) {
-            return kafkaQueue.dequeueApiMessages(tenantMnemonic, resourceType, limit)
-        }
         return messageDAO.readApiMessages(tenantMnemonic, resourceType, limit)
     }
 
