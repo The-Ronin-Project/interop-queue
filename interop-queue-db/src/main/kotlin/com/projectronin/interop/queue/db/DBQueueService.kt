@@ -10,6 +10,7 @@ import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.Message
 import com.projectronin.interop.queue.model.QueueStatus
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 
@@ -18,11 +19,18 @@ import org.springframework.stereotype.Service
  */
 @Primary
 @Service
-class DBQueueService(private val messageDAO: MessageDAO, private val kafkaQueue: KafkaQueueService) : QueueService {
+class DBQueueService(
+    private val messageDAO: MessageDAO,
+    private val kafkaQueue: KafkaQueueService,
+    @Value("\${kafka.useKafka:false}") private val useKafka: Boolean = false
+) : QueueService {
     override fun enqueueMessages(messages: List<Message>) {
         // call kafka queue for patients only
-        val patientMessages = messages.filterIsInstance<ApiMessage>().filter { it.resourceType == ResourceType.PATIENT }
-        if (patientMessages.isNotEmpty()) kafkaQueue.enqueueMessages(patientMessages)
+        if (useKafka) {
+            val patientMessages =
+                messages.filterIsInstance<ApiMessage>().filter { it.resourceType == ResourceType.PATIENT }
+            if (patientMessages.isNotEmpty()) kafkaQueue.enqueueMessages(patientMessages)
+        }
         // still send all events to DB queue for now.
         return messageDAO.insertMessages(messages)
     }

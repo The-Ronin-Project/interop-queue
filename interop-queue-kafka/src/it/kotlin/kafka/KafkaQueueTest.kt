@@ -1,7 +1,8 @@
-package com.projectronin.interop.queue.kafka
+package kafka
 
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.kafka.model.RetrieveTopic
+import com.projectronin.interop.queue.kafka.KafkaQueueService
 import com.projectronin.interop.queue.model.ApiMessage
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

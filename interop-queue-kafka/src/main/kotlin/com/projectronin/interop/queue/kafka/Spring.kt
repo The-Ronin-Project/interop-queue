@@ -12,7 +12,7 @@ class Spring {
         val patientRetrieveTopic = RetrieveTopic(
             systemName = "interop",
             topicName = "ronin.interop.patient.retrieve",
-            dataSchema = "http://localhost/event/interop.retrieve",
+            dataSchema = "https://github.com/projectronin/contract-event-interop-patient-retrieve/blob/main/v1/interop-resource-retrieve-v1.schema.json",
             resourceType = "Patient"
         )
         return listOf(patientRetrieveTopic)

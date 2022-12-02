@@ -2,6 +2,6 @@
 [![Tests](https://github.com/projectronin/interop-queue/actions/workflows/db_test.yml/badge.svg)](https://github.com/projectronin/interop-queue/actions/workflows/db_test.yml)
 [![Lint](https://github.com/projectronin/interop-queue/actions/workflows/lint.yml/badge.svg)](https://github.com/projectronin/interop-queue/actions/workflows/lint.yml)
 
-# interop-queue-db
+# interop-queue-kafka
 
-Implementation of the InterOps queueing system utilizing a MySQL database.
+Implementation of the InterOps queueing system utilizing Kafka events.

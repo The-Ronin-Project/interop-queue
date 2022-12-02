@@ -56,6 +56,33 @@ class DBQueueServiceTest {
     }
 
     @Test
+    fun `kafka messages`() {
+        service = DBQueueService(messageDAO, kafka, true)
+        val message1 = ApiMessage(
+            resourceType = ResourceType.PRACTITIONER,
+            tenant = "TENANT",
+            text = "Text"
+        )
+        val message2 = ApiMessage(
+            resourceType = ResourceType.APPOINTMENT,
+            tenant = "TENANT",
+            text = "Text"
+        )
+        val message3 = ApiMessage(
+            resourceType = ResourceType.PATIENT,
+            tenant = "TENANT",
+            text = "Text"
+        )
+        every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
+        every { kafka.enqueueMessages(listOf(message3)) } just Runs
+        service.enqueueMessages(listOf(message1, message2, message3))
+
+        verify(exactly = 1) {
+            messageDAO.insertMessages(listOf(message1, message2, message3))
+        }
+    }
+
+    @Test
     fun `can dequeue api messages`() {
         val message1 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,

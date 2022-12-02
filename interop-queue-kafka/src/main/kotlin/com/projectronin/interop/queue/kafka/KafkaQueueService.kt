@@ -18,6 +18,7 @@ import com.projectronin.interop.queue.model.QueueStatus
 import com.projectronin.kafka.RoninProducer
 import com.projectronin.kafka.data.RoninEvent
 import com.projectronin.kafka.data.RoninEventResult
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.util.Timer
 import java.util.UUID
@@ -25,12 +26,12 @@ import kotlin.concurrent.schedule
 import kotlin.reflect.KClass
 
 /**
- * Database-based implementation of [QueueService]
+ * Kafka-based implementation of [QueueService]
  */
 @Service
 class KafkaQueueService(
     val kafkaConfig: KafkaConfig,
-    retrieveTopics: List<RetrieveTopic>
+    retrieveTopics: List<RetrieveTopic>,
 ) : QueueService {
     private val retrieveTopicsByResourceType = retrieveTopics.groupBy { it.resourceType.lowercase() }
     private val producersByTopicName: MutableMap<String, RoninProducer> = mutableMapOf()
@@ -52,7 +53,11 @@ class KafkaQueueService(
         val apiMessages = messages.filterIsInstance<ApiMessage>()
         val apiMessagesByType = apiMessages.groupBy { it.resourceType.name.lowercase() }
         apiMessagesByType.forEach { (type, list) ->
-            val topic = retrieveTopicsByResourceType[type]?.singleOrNull() ?: return@forEach
+            val topic = retrieveTopicsByResourceType[type]?.singleOrNull()
+            if (topic == null) {
+                KotlinLogging.logger { }.info { "Resource type '$type' is not supported for Kafka event queueing." }
+                return@forEach
+            }
             val producer = producersByTopicName.computeIfAbsent(topic.topicName) { createProducer(topic, kafkaConfig) }
             list.forEach {
                 val data = InteropResourceRetrieveV1(
@@ -85,7 +90,7 @@ class KafkaQueueService(
         }
         consumer.process {
             messageList.add(it.toAPIMessage(resourceType))
-            // stop if 5 seconds have passed, or we have reached our message limit
+            // stop if 10 seconds have passed, or we have reached our message limit
             // note that the 'limit' might not be exact, since there could still be messages left to process
             if (messageList.size == limit) consumer.stop()
             RoninEventResult.ACK
