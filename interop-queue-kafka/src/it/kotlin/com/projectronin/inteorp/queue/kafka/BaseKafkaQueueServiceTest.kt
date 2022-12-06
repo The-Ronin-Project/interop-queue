@@ -1,4 +1,4 @@
-package kafka
+package com.projectronin.inteorp.queue.kafka
 
 import com.projectronin.interop.kafka.config.KafkaBootstrapConfig
 import com.projectronin.interop.kafka.config.KafkaCloudConfig

@@ -1,4 +1,4 @@
-package kafka
+package com.projectronin.inteorp.queue.kafka
 
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.kafka.model.RetrieveTopic

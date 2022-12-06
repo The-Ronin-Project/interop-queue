@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service
 class DBQueueService(
     private val messageDAO: MessageDAO,
     private val kafkaQueue: KafkaQueueService,
-    @Value("\${kafka.useKafka:false}") private val useKafka: Boolean = false
+    @Value("\${queue.kafka.enabled:false}") private val useKafka: Boolean = false
 ) : QueueService {
     override fun enqueueMessages(messages: List<Message>) {
         // call kafka queue for patients only
