@@ -3,6 +3,7 @@ package com.projectronin.interop.queue.db
 import com.projectronin.interop.common.hl7.EventType
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.queue.db.data.MessageDAO
+import com.projectronin.interop.queue.kafka.KafkaQueueService
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import com.projectronin.interop.queue.model.QueueStatus
@@ -19,18 +20,19 @@ import com.projectronin.interop.common.hl7.MessageType as HL7MessageType
 class DBQueueServiceTest {
     private lateinit var messageDAO: MessageDAO
     private lateinit var service: DBQueueService
+    private lateinit var kafka: KafkaQueueService
 
     @BeforeEach
     fun setup() {
         messageDAO = mockk()
-
-        service = DBQueueService(messageDAO)
+        kafka = mockk()
+        service = DBQueueService(messageDAO, kafka)
     }
 
     @Test
     fun `can enqueue messages`() {
         val message1 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
+            resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
             text = "Text"
         )
@@ -39,24 +41,56 @@ class DBQueueServiceTest {
             tenant = "TENANT",
             text = "Text"
         )
-        every { messageDAO.insertMessages(listOf(message1, message2)) } just Runs
-
-        service.enqueueMessages(listOf(message1, message2))
+        val message3 = ApiMessage(
+            resourceType = ResourceType.PATIENT,
+            tenant = "TENANT",
+            text = "Text"
+        )
+        every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
+        every { kafka.enqueueMessages(listOf(message3)) } just Runs
+        service.enqueueMessages(listOf(message1, message2, message3))
 
         verify(exactly = 1) {
-            messageDAO.insertMessages(listOf(message1, message2))
+            messageDAO.insertMessages(listOf(message1, message2, message3))
+        }
+    }
+
+    @Test
+    fun `kafka messages`() {
+        service = DBQueueService(messageDAO, kafka, true)
+        val message1 = ApiMessage(
+            resourceType = ResourceType.PRACTITIONER,
+            tenant = "TENANT",
+            text = "Text"
+        )
+        val message2 = ApiMessage(
+            resourceType = ResourceType.APPOINTMENT,
+            tenant = "TENANT",
+            text = "Text"
+        )
+        val message3 = ApiMessage(
+            resourceType = ResourceType.PATIENT,
+            tenant = "TENANT",
+            text = "Text"
+        )
+        every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
+        every { kafka.enqueueMessages(listOf(message3)) } just Runs
+        service.enqueueMessages(listOf(message1, message2, message3))
+
+        verify(exactly = 1) {
+            messageDAO.insertMessages(listOf(message1, message2, message3))
         }
     }
 
     @Test
     fun `can dequeue api messages`() {
         val message1 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
+            resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
             text = "Text"
         )
         val message2 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
+            resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
             text = "Text"
         )
@@ -64,16 +98,16 @@ class DBQueueServiceTest {
         every {
             messageDAO.readApiMessages(
                 "TENANT",
-                ResourceType.PATIENT,
+                ResourceType.PRACTITIONER,
                 2
             )
         } returns listOf(message1, message2)
 
-        val messages = service.dequeueApiMessages("TENANT", ResourceType.PATIENT, 2)
+        val messages = service.dequeueApiMessages("TENANT", ResourceType.PRACTITIONER, 2)
         assertEquals(listOf(message1, message2), messages)
 
         verify(exactly = 1) {
-            messageDAO.readApiMessages("TENANT", ResourceType.PATIENT, 2)
+            messageDAO.readApiMessages("TENANT", ResourceType.PRACTITIONER, 2)
         }
     }
 

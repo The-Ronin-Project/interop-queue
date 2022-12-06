@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":interop-queue"))
+    implementation(project(":interop-queue-kafka"))
     implementation(libs.interop.common)
 
     implementation(libs.ktorm.core)
