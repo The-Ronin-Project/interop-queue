@@ -1,6 +1,6 @@
 package com.projectronin.interop.queue.kafka
 
-import com.projectronin.event.interop.patient.retrieve.v1.InteropResourceRetrieveV1
+import com.projectronin.event.interop.resource.retrieve.v1.InteropResourceRetrieveV1
 import com.projectronin.interop.common.hl7.EventType
 import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType

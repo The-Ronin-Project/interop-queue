@@ -56,6 +56,10 @@ flags:
     paths:
       - interop-queue/
     carryforward: true
+  kafka:
+    paths:
+      - interop-queue-kafka/
+    carryforward: true
   db:
     paths:
       - interop-queue-db/
