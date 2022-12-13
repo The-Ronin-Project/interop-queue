@@ -97,6 +97,7 @@ internal class KafkaQueueServiceTest {
             lambda<(RoninEvent<*>) -> RoninEventResult>().invoke(mockEvent)
         }
         every { mockConsumer.stop() } just Runs
+        every { mockConsumer.unsubscribe() } just Runs
 
         val messages = service.dequeueApiMessages("TENANT", ResourceType.PATIENT, 1)
         assertEquals(1, messages.size)
