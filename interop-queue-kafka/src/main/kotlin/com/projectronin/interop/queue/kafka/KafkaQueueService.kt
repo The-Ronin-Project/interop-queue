@@ -80,21 +80,19 @@ class KafkaQueueService(
     override fun dequeueApiMessages(
         tenantMnemonic: String,
         resourceType: ResourceType,
-        limit: Int
+        limit: Int // unused
     ): List<ApiMessage> {
         val messageList = mutableListOf<ApiMessage>()
         val topic = retrieveTopicsByResourceType[resourceType.name.lowercase()]?.singleOrNull() ?: return emptyList()
         val consumer = createConsumer(topic, typeMap, kafkaConfig)
         Timer("poll").schedule(10000) {
-            consumer.stop()
+            consumer.stop() // stop processing if 10 seconds have passed
         }
         consumer.process {
             messageList.add(it.toAPIMessage(resourceType))
-            // stop if 10 seconds have passed, or we have reached our message limit
-            // note that the 'limit' might not be exact, since there could still be messages left to process
-            if (messageList.size == limit) consumer.stop()
             RoninEventResult.ACK
         }
+        consumer.unsubscribe()
         return messageList
     }
 
