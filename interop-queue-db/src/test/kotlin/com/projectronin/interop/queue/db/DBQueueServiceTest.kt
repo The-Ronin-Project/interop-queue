@@ -74,7 +74,7 @@ class DBQueueServiceTest {
             text = "Text"
         )
         every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
-        every { kafka.enqueueMessages(listOf(message3)) } just Runs
+        every { kafka.enqueueMessages(listOf(message1, message2, message3)) } just Runs
         service.enqueueMessages(listOf(message1, message2, message3))
 
         verify(exactly = 1) {

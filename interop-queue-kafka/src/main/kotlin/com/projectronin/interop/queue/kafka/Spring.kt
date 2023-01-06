@@ -9,12 +9,35 @@ class Spring {
 
     @Bean
     fun topics(): List<RetrieveTopic> {
-        val patientRetrieveTopic = RetrieveTopic(
-            systemName = "interop",
-            topicName = "ronin.interop.patient.retrieve",
-            dataSchema = "https://github.com/projectronin/contract-event-interop-patient-retrieve/blob/main/v1/interop-resource-retrieve-v1.schema.json",
-            resourceType = "Patient"
+        val system = "interop"
+        val dataSchema =
+            "https://github.com/projectronin/contract-event-interop-patient-retrieve/blob/main/v1/interop-resource-retrieve-v1.schema.json"
+
+        return listOf(
+            RetrieveTopic(
+                systemName = system,
+                topicName = "azure.centralus.interop-proxy.patient-retrieve.v1",
+                dataSchema = dataSchema,
+                resourceType = "Patient"
+            ),
+            RetrieveTopic(
+                systemName = system,
+                topicName = "azure.centralus.interop-proxy.appointment-retrieve.v1",
+                dataSchema = dataSchema,
+                resourceType = "Appointment"
+            ),
+            RetrieveTopic(
+                systemName = system,
+                topicName = "azure.centralus.interop-proxy.practitioner-retrieve.v1",
+                dataSchema = dataSchema,
+                resourceType = "Practitioner"
+            ),
+            RetrieveTopic(
+                systemName = system,
+                topicName = "azure.centralus.interop-proxy.condition-retrieve.v1",
+                dataSchema = dataSchema,
+                resourceType = "Condition"
+            )
         )
-        return listOf(patientRetrieveTopic)
     }
 }

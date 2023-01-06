@@ -25,11 +25,9 @@ class DBQueueService(
     @Value("\${queue.kafka.enabled:false}") private val useKafka: Boolean = false
 ) : QueueService {
     override fun enqueueMessages(messages: List<Message>) {
-        // call kafka queue for patients only
+        // call kafka queue
         if (useKafka) {
-            val patientMessages =
-                messages.filterIsInstance<ApiMessage>().filter { it.resourceType == ResourceType.PATIENT }
-            if (patientMessages.isNotEmpty()) kafkaQueue.enqueueMessages(patientMessages)
+            kafkaQueue.enqueueMessages(messages)
         }
         // still send all events to DB queue for now.
         return messageDAO.insertMessages(messages)
