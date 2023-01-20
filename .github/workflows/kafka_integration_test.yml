@@ -1,4 +1,4 @@
-name: Interop Queue Tests
+name: Interop Queue Kafka Integration Tests
 on:
   push:
     branches: [ master ]
@@ -22,15 +22,8 @@ jobs:
           npm install -g @datadog/datadog-ci
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Gradlew Test
-        run: ./gradlew :interop-queue:test
-      - name: Upload Code Coverage
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-          file: ./interop-queue/codecov/test/jacocoTestReport.xml
-          flags: api
+      - name: Gradlew Integration Tests
+        run: ./gradlew :interop-queue-kafka:it --stacktrace
 
       - name: Upload report to DataDog
         if: always() && !cancelled()
@@ -38,4 +31,4 @@ jobs:
           DD_ENV: ci
           DATADOG_SITE: datadoghq.com
           DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}
-        run: datadog-ci junit upload --service interop-queue ./interop-queue/build/test-results/test
+        run: datadog-ci junit upload --service interop-queue-kafka-it ./interop-queue-kafka/build/test-results/it

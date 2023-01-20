@@ -16,6 +16,11 @@ coverage:
         threshold: 1%
         flags:
           - db
+      kafka:
+        target: auto
+        threshold: 1%
+        flags:
+          - kafka
       monitor:
         target: auto
         threshold: 1%
@@ -35,6 +40,12 @@ coverage:
         base: auto
         flags:
           - db
+      kafka:
+        target: 80
+        threshold: 1%
+        base: auto
+        flags:
+          - kafka
       monitor:
         target: 80
         threshold: 1%
