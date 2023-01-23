@@ -6,10 +6,10 @@ import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.kafka.client.createConsumer
 import com.projectronin.interop.kafka.client.createProducer
-import com.projectronin.interop.kafka.config.KafkaConfig
 import com.projectronin.interop.kafka.model.KafkaAction
 import com.projectronin.interop.kafka.model.KafkaEvent
 import com.projectronin.interop.kafka.model.RetrieveTopic
+import com.projectronin.interop.kafka.spring.KafkaConfig
 import com.projectronin.interop.queue.QueueService
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message

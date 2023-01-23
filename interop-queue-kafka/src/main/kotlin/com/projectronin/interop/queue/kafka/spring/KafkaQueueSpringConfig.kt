@@ -1,12 +1,16 @@
-package com.projectronin.interop.queue.kafka
+package com.projectronin.interop.queue.kafka.spring
 
 import com.projectronin.interop.kafka.model.RetrieveTopic
+import com.projectronin.interop.kafka.spring.KafkaSpringConfig
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 
 @Configuration
-class Spring {
-
+@ComponentScan("com.projectronin.interop.queue.kafka")
+@Import(KafkaSpringConfig::class)
+class KafkaQueueSpringConfig {
     @Bean
     fun topics(): List<RetrieveTopic> {
         val system = "interop"

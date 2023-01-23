@@ -4,15 +4,16 @@ import com.projectronin.event.interop.resource.retrieve.v1.InteropResourceRetrie
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.kafka.client.createConsumer
 import com.projectronin.interop.kafka.client.createProducer
-import com.projectronin.interop.kafka.config.KafkaBootstrapConfig
-import com.projectronin.interop.kafka.config.KafkaCloudConfig
-import com.projectronin.interop.kafka.config.KafkaConfig
-import com.projectronin.interop.kafka.config.KafkaPropertiesConfig
-import com.projectronin.interop.kafka.config.KafkaPublishConfig
-import com.projectronin.interop.kafka.config.KafkaRetrieveConfig
-import com.projectronin.interop.kafka.config.KafkaSaslConfig
-import com.projectronin.interop.kafka.config.KafkaSaslJaasConfig
-import com.projectronin.interop.kafka.config.KafkaSecurityConfig
+import com.projectronin.interop.kafka.spring.KafkaBootstrapConfig
+import com.projectronin.interop.kafka.spring.KafkaCloudConfig
+import com.projectronin.interop.kafka.spring.KafkaConfig
+import com.projectronin.interop.kafka.spring.KafkaPropertiesConfig
+import com.projectronin.interop.kafka.spring.KafkaPublishConfig
+import com.projectronin.interop.kafka.spring.KafkaRetrieveConfig
+import com.projectronin.interop.kafka.spring.KafkaSaslConfig
+import com.projectronin.interop.kafka.spring.KafkaSaslJaasConfig
+import com.projectronin.interop.kafka.spring.KafkaSecurityConfig
+import com.projectronin.interop.queue.kafka.spring.KafkaQueueSpringConfig
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.kafka.RoninConsumer
 import com.projectronin.kafka.RoninProducer
@@ -56,7 +57,7 @@ internal class KafkaQueueServiceTest {
             ),
             retrieve = KafkaRetrieveConfig("groupID")
         )
-        service = KafkaQueueService(config, Spring().topics())
+        service = KafkaQueueService(config, KafkaQueueSpringConfig().topics())
     }
 
     @Test

@@ -1,14 +1,14 @@
 package com.projectronin.inteorp.queue.kafka
 
-import com.projectronin.interop.kafka.config.KafkaBootstrapConfig
-import com.projectronin.interop.kafka.config.KafkaCloudConfig
-import com.projectronin.interop.kafka.config.KafkaConfig
-import com.projectronin.interop.kafka.config.KafkaPropertiesConfig
-import com.projectronin.interop.kafka.config.KafkaPublishConfig
-import com.projectronin.interop.kafka.config.KafkaRetrieveConfig
-import com.projectronin.interop.kafka.config.KafkaSaslConfig
-import com.projectronin.interop.kafka.config.KafkaSaslJaasConfig
-import com.projectronin.interop.kafka.config.KafkaSecurityConfig
+import com.projectronin.interop.kafka.spring.KafkaBootstrapConfig
+import com.projectronin.interop.kafka.spring.KafkaCloudConfig
+import com.projectronin.interop.kafka.spring.KafkaConfig
+import com.projectronin.interop.kafka.spring.KafkaPropertiesConfig
+import com.projectronin.interop.kafka.spring.KafkaPublishConfig
+import com.projectronin.interop.kafka.spring.KafkaRetrieveConfig
+import com.projectronin.interop.kafka.spring.KafkaSaslConfig
+import com.projectronin.interop.kafka.spring.KafkaSaslJaasConfig
+import com.projectronin.interop.kafka.spring.KafkaSecurityConfig
 import com.projectronin.kafka.RoninConsumer
 import org.testcontainers.containers.DockerComposeContainer
 import org.testcontainers.containers.wait.strategy.Wait
@@ -24,6 +24,7 @@ abstract class BaseKafkaQueueServiceTest {
 
         private val consumersByTopic = mutableMapOf<String, RoninConsumer>()
     }
+
     private val tenantId = "ronin"
     private val cloudConfig = KafkaCloudConfig(
         vendor = "local",

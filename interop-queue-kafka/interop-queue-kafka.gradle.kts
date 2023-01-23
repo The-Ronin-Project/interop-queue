@@ -14,4 +14,5 @@ dependencies {
 
     testImplementation(libs.interop.commonTestDb) // necessary for integration test
     testImplementation(libs.mockk)
+    testImplementation("org.springframework:spring-test")
 }
