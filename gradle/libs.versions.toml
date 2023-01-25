@@ -1,5 +1,5 @@
 [libraries]
-dog-stats-d = "com.datadoghq:java-dogstatsd-client:4.1.0"
+dog-stats-d = "com.datadoghq:java-dogstatsd-client:4.2.0"
 interop-common = "com.projectronin.interop:interop-common:3.2.1"
 interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:3.2.1"
 interop-kafka = "com.projectronin.interop.publish:interop-kafka:7.1.0"
