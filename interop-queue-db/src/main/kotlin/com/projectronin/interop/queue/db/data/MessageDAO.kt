@@ -64,14 +64,16 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
         query = limit?.let { query.limit(it) } ?: query
         val apiMessages = query.locking(LockingMode.FOR_UPDATE).map { ApiMessageDOs.createEntity(it) }
 
-        // Stamp the read instant on all read messages
-        val readInstant = Instant.now()
-        database.batchUpdate(ApiMessageDOs) {
-            apiMessages.forEach { message ->
-                item {
-                    set(it.readInstant, readInstant)
-                    where {
-                        it.id eq message.id
+        if (apiMessages.isNotEmpty()) {
+            // Stamp the read instant on all read messages
+            val readInstant = Instant.now()
+            database.batchUpdate(ApiMessageDOs) {
+                apiMessages.forEach { message ->
+                    item {
+                        set(it.readInstant, readInstant)
+                        where {
+                            it.id eq message.id
+                        }
                     }
                 }
             }
@@ -86,6 +88,7 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
         logger.info { "${messages.size} $resourceType messages found." }
         return messages
     }
+
     /**
      * Reads unread [HL7Message] messages for [MessageType] within [tenant].
      * Messages can be further restricted by [EventType] with all included by default.
