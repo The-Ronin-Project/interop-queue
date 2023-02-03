@@ -119,17 +119,20 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
         query = limit?.let { query.limit(it) } ?: query
         val hl7Messages = query.locking(LockingMode.FOR_UPDATE).map { HL7MessageDOs.createEntity(it) }
 
-        val readInstant = Instant.now()
-        database.batchUpdate(HL7MessageDOs) {
-            hl7Messages.forEach { message ->
-                item {
-                    set(it.readInstant, readInstant)
-                    where {
-                        it.id eq message.id
+        if (hl7Messages.isNotEmpty()) {
+            val readInstant = Instant.now()
+            database.batchUpdate(HL7MessageDOs) {
+                hl7Messages.forEach { message ->
+                    item {
+                        set(it.readInstant, readInstant)
+                        where {
+                            it.id eq message.id
+                        }
                     }
                 }
             }
         }
+
         val messages = hl7Messages.map {
             HL7Message(
                 it.id.toString(), it.tenant, it.text, it.hl7Type, it.hl7Event

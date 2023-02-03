@@ -94,10 +94,46 @@ class MessageDAOTest {
         val dao = MessageDAO(KtormHelper.database())
         val messages = dao.readApiMessages("TENANT", ResourceType.PATIENT, 5)
 
-        val message1 = ApiMessage("100", "TENANT", """{"id":2,"value":"Saved"}""", ResourceType.PATIENT,)
+        val message1 = ApiMessage("100", "TENANT", """{"id":2,"value":"Saved"}""", ResourceType.PATIENT)
         val message2 = ApiMessage("101", "TENANT", """{"id":3,"value":"New"}""", ResourceType.PATIENT)
         val message3 = ApiMessage("102", "TENANT", """{"id":4,"value":"New"}""", ResourceType.PATIENT)
         assertEquals(listOf(message1, message2, message3), messages)
+    }
+
+    @Test
+    @DataSet(value = ["/dbunit/message/api/read/NoMessages.yaml"], cleanAfter = true)
+    @ExpectedDataSet("/dbunit/message/api/read/NoMessages.yaml")
+    fun `read HL7 messages when none exist`() {
+        val dao = MessageDAO(KtormHelper.database())
+        val messages = dao.readHL7Messages("TENANT", MessageType.MDM, null, 2)
+        assertEquals(listOf<HL7Message>(), messages)
+    }
+
+    @Test
+    @DataSet(value = ["/dbunit/message/api/read/NoUnreadMessages.yaml"], cleanAfter = true)
+    @ExpectedDataSet("/dbunit/message/api/read/NoUnreadMessages.yaml")
+    fun `read HL7 messages when no unread exist`() {
+        val dao = MessageDAO(KtormHelper.database())
+        val messages = dao.readHL7Messages("TENANT", MessageType.MDM, null, 2)
+        assertEquals(listOf<HL7Message>(), messages)
+    }
+
+    @Test
+    @DataSet(value = ["/dbunit/message/api/read/OnlyMDMT02Messages.yaml"], cleanAfter = true)
+    @ExpectedDataSet("/dbunit/message/api/read/OnlyMDMT02Messages.yaml")
+    fun `read HL7 messages when none exist for requested event type`() {
+        val dao = MessageDAO(KtormHelper.database())
+        val messages = dao.readHL7Messages("TENANT", MessageType.MDM, EventType.MDMT06, 2)
+        assertEquals(listOf<HL7Message>(), messages)
+    }
+
+    @Test
+    @DataSet(value = ["/dbunit/message/api/read/OnlyNewTenantMessages.yaml"], cleanAfter = true)
+    @ExpectedDataSet("/dbunit/message/api/read/OnlyNewTenantMessages.yaml")
+    fun `read HL7 messages when none exist for requested tenant`() {
+        val dao = MessageDAO(KtormHelper.database())
+        val messages = dao.readHL7Messages("TENANT", MessageType.MDM, EventType.MDMT06, 2)
+        assertEquals(listOf<HL7Message>(), messages)
     }
 
     @Test
