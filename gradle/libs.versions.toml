@@ -1,7 +1,7 @@
 [libraries]
 dog-stats-d = "com.datadoghq:java-dogstatsd-client:4.2.0"
-interop-common = "com.projectronin.interop:interop-common:3.3.0"
-interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:3.3.0"
+interop-common = "com.projectronin.interop:interop-common:3.4.0"
+interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:3.4.0"
 interop-kafka = "com.projectronin.interop.publish:interop-kafka:7.3.0"
 ktorm-core = "org.ktorm:ktorm-core:3.6.0"
 ktorm-support-mysql = "org.ktorm:ktorm-support-mysql:3.6.0"
