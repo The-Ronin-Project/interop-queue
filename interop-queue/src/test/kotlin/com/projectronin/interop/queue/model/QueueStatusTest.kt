@@ -14,7 +14,7 @@ class QueueStatusTest {
             apiDepth = mapOf(tenant to depth),
             apiAge = mapOf(tenant to age),
             hl7Depth = mapOf(tenant to depth),
-            hl7Age = mapOf(tenant to age),
+            hl7Age = mapOf(tenant to age)
         )
 
         assertEquals(depth, status.apiDepth[tenant])

@@ -31,12 +31,12 @@ import kotlin.reflect.KClass
 @Service
 class KafkaQueueService(
     val kafkaConfig: KafkaConfig,
-    retrieveTopics: List<RetrieveTopic>,
+    retrieveTopics: List<RetrieveTopic>
 ) : QueueService {
     private val retrieveTopicsByResourceType = retrieveTopics.groupBy { it.resourceType.lowercase() }
     private val producersByTopicName: MutableMap<String, RoninProducer> = mutableMapOf()
     private val typeMap: Map<String, KClass<*>> = mapOf(
-        "ronin.interop.resource.retrieve" to InteropResourceRetrieveV1::class,
+        "ronin.interop.resource.retrieve" to InteropResourceRetrieveV1::class
     )
 
     fun RoninEvent<*>.toAPIMessage(type: ResourceType): ApiMessage {

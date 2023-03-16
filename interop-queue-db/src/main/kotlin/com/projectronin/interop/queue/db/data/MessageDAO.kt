@@ -81,7 +81,10 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
 
         val messages = apiMessages.map {
             ApiMessage(
-                it.id.toString(), it.tenant, it.text, it.resourceType
+                it.id.toString(),
+                it.tenant,
+                it.text,
+                it.resourceType
             )
         }
 
@@ -135,7 +138,11 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
 
         val messages = hl7Messages.map {
             HL7Message(
-                it.id.toString(), it.tenant, it.text, it.hl7Type, it.hl7Event
+                it.id.toString(),
+                it.tenant,
+                it.text,
+                it.hl7Type,
+                it.hl7Event
             )
         }
         logger.info { "${messages.size} $event messages found." }
@@ -209,7 +216,7 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
             apiDepth = apiQueueStatus.mapValues { it.value.first },
             apiAge = apiQueueStatus.mapValues { it.value.second },
             hl7Depth = hl7QueueStatus.mapValues { it.value.first },
-            hl7Age = hl7QueueStatus.mapValues { it.value.second },
+            hl7Age = hl7QueueStatus.mapValues { it.value.second }
         )
     }
 

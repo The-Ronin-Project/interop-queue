@@ -23,7 +23,10 @@ class ApiMessageTest {
     @Test
     fun `check getters`() {
         val message = ApiMessage(
-            "id", "tenant", "text", ResourceType.PATIENT
+            "id",
+            "tenant",
+            "text",
+            ResourceType.PATIENT
         )
         assertEquals("id", message.id)
         assertEquals(MessageType.API, message.messageType)

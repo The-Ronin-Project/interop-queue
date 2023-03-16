@@ -16,7 +16,7 @@ data class HL7Message(
     override val tenant: String,
     override val text: String,
     val hl7Type: HL7MessageType,
-    val hl7Event: EventType,
+    val hl7Event: EventType
 ) : Message {
     override val messageType = MessageType.HL7
 }

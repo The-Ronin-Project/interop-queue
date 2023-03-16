@@ -15,4 +15,10 @@ dependencies {
     testImplementation(libs.interop.commonTestDb) // necessary for integration test
     testImplementation(libs.mockk)
     testImplementation("org.springframework:spring-test")
+
+    itImplementation(libs.interop.common)
+    itImplementation(libs.interop.kafka)
+    itImplementation(libs.testcontainers.mysql)
+    itImplementation(libs.ronin.kafka)
+    itImplementation(project(":interop-queue"))
 }

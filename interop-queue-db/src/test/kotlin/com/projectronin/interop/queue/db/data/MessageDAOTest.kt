@@ -234,7 +234,7 @@ class MessageDAOTest {
             tenant = "TEST1",
             text = exampleMessage,
             hl7Type = MessageType.MDM,
-            hl7Event = EventType.MDMT02,
+            hl7Event = EventType.MDMT02
         )
         dao.insertMessages(listOf(message1))
         val messages = dao.readHL7Messages("TEST1", MessageType.MDM)
