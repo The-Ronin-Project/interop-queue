@@ -2,8 +2,7 @@ package com.projectronin.interop.queue.kafka
 
 import com.projectronin.event.interop.resource.retrieve.v1.InteropResourceRetrieveV1
 import com.projectronin.interop.common.resource.ResourceType
-import com.projectronin.interop.kafka.client.createConsumer
-import com.projectronin.interop.kafka.client.createProducer
+import com.projectronin.interop.kafka.client.KafkaClient
 import com.projectronin.interop.kafka.spring.KafkaBootstrapConfig
 import com.projectronin.interop.kafka.spring.KafkaCloudConfig
 import com.projectronin.interop.kafka.spring.KafkaConfig
@@ -15,17 +14,9 @@ import com.projectronin.interop.kafka.spring.KafkaSaslJaasConfig
 import com.projectronin.interop.kafka.spring.KafkaSecurityConfig
 import com.projectronin.interop.queue.kafka.spring.KafkaQueueSpringConfig
 import com.projectronin.interop.queue.model.ApiMessage
-import com.projectronin.kafka.RoninConsumer
-import com.projectronin.kafka.RoninProducer
 import com.projectronin.kafka.data.RoninEvent
-import com.projectronin.kafka.data.RoninEventResult
-import io.mockk.Runs
-import io.mockk.coEvery
 import io.mockk.every
-import io.mockk.invoke
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -36,6 +27,7 @@ internal class KafkaQueueServiceTest {
 
     private lateinit var service: KafkaQueueService
     private lateinit var config: KafkaConfig
+    private lateinit var client: KafkaClient
 
     @BeforeEach
     fun setup() {
@@ -57,15 +49,13 @@ internal class KafkaQueueServiceTest {
             ),
             retrieve = KafkaRetrieveConfig("groupID")
         )
-        service = KafkaQueueService(config, KafkaQueueSpringConfig().topics())
+        client = mockk()
+        service = KafkaQueueService(client, KafkaQueueSpringConfig(config).queueTopics())
     }
 
     @Test
     fun `kafka messages enqueue`() {
-        mockkStatic(::createProducer)
-        val mockProducer = mockk<RoninProducer>()
-        coEvery { mockProducer.send<InteropResourceRetrieveV1>(any(), any(), any()) } returns mockk()
-        every { createProducer(any(), any()) } returns mockProducer
+        every { client.publishEvents<InteropResourceRetrieveV1>(any(), any()) } returns mockk()
         val message1 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
@@ -83,7 +73,6 @@ internal class KafkaQueueServiceTest {
         )
 
         assertDoesNotThrow { service.enqueueMessages(listOf(message1, message2, message3)) }
-        unmockkAll()
     }
 
     @Test
@@ -91,14 +80,8 @@ internal class KafkaQueueServiceTest {
         val mockEvent = mockk<RoninEvent<InteropResourceRetrieveV1>>()
         every { mockEvent.data } returns InteropResourceRetrieveV1("TENANT", "Patient", "Text")
         every { mockEvent.id } returns "messageID"
-        mockkStatic(::createConsumer)
-        val mockConsumer = mockk<RoninConsumer>()
-        every { createConsumer(any(), any(), any()) } returns mockConsumer
-        every { mockConsumer.process(handler = captureLambda()) } answers {
-            lambda<(RoninEvent<*>) -> RoninEventResult>().invoke(mockEvent)
-        }
-        every { mockConsumer.stop() } just Runs
-        every { mockConsumer.unsubscribe() } just Runs
+
+        every { client.retrieveEvents(any(), any(), any(), any()) } returns listOf(mockEvent)
 
         val messages = service.dequeueApiMessages("TENANT", ResourceType.PATIENT, 1)
         assertEquals(1, messages.size)
