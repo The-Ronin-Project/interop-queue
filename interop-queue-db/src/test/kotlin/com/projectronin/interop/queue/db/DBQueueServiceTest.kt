@@ -26,7 +26,7 @@ class DBQueueServiceTest {
     fun setup() {
         messageDAO = mockk()
         kafka = mockk()
-        service = DBQueueService(messageDAO, kafka)
+        service = DBQueueService(messageDAO, kafka, "no")
     }
 
     @Test
@@ -57,7 +57,7 @@ class DBQueueServiceTest {
 
     @Test
     fun `kafka messages`() {
-        service = DBQueueService(messageDAO, kafka, true)
+        service = DBQueueService(messageDAO, kafka, "yes")
         val message1 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",

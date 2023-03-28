@@ -22,11 +22,11 @@ import org.springframework.stereotype.Service
 class DBQueueService(
     private val messageDAO: MessageDAO,
     private val kafkaQueue: KafkaQueueService,
-    @Value("\${queue.kafka.enabled:false}") private val useKafka: Boolean = false
+    @Value("\${queue.kafka.enabled:yes}") private val useKafka: String = "yes"
 ) : QueueService {
     override fun enqueueMessages(messages: List<Message>) {
         // call kafka queue
-        if (useKafka) {
+        if (useKafka == "yes") {
             kafkaQueue.enqueueMessages(messages)
         }
         // still send all events to DB queue for now.
