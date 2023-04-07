@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: io-queue-api-create-pk-in-databasechangelog
+      author: Douglas Doughty adapted from Brad Jacobs
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            - primaryKeyExists:
+                tableName: DATABASECHANGELOG
+      changes:
+        - addPrimaryKey:
+            tableName: DATABASECHANGELOG
+            columnNames: ID, AUTHOR, FILENAME
