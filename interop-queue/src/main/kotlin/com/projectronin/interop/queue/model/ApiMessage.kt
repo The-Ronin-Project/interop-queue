@@ -1,5 +1,6 @@
 package com.projectronin.interop.queue.model
 
+import com.projectronin.event.interop.internal.v1.Metadata
 import com.projectronin.interop.common.resource.ResourceType
 
 /**
@@ -14,7 +15,8 @@ data class ApiMessage(
     override val id: String? = null,
     override val tenant: String,
     override val text: String,
-    val resourceType: ResourceType
+    val resourceType: ResourceType,
+    val metadata: Metadata
 ) : Message {
     override val messageType = MessageType.API
 }

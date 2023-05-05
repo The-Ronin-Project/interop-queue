@@ -3,5 +3,6 @@ plugins {
 }
 
 dependencies {
+    api(libs.event.interop.resource.internal)
     implementation(libs.interop.common)
 }

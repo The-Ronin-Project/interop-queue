@@ -12,6 +12,7 @@ import com.projectronin.interop.common.test.database.liquibase.LiquibaseTest
 import com.projectronin.interop.queue.model.ApiMessage
 import com.projectronin.interop.queue.model.HL7Message
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -69,10 +70,23 @@ class MessageDAOTest {
         val dao = MessageDAO(KtormHelper.database())
         val messages = dao.readApiMessages("TENANT", ResourceType.PATIENT)
 
-        val message1 = ApiMessage("100", "TENANT", """{"id":2,"value":"Saved"}""", ResourceType.PATIENT)
-        val message2 = ApiMessage("101", "TENANT", """{"id":3,"value":"New"}""", ResourceType.PATIENT)
-        val message3 = ApiMessage("102", "TENANT", """{"id":4,"value":"New"}""", ResourceType.PATIENT)
-        assertEquals(listOf(message1, message2, message3), messages)
+        assertEquals("100", messages[0].id)
+        assertEquals("TENANT", messages[0].tenant)
+        assertEquals("""{"id":2,"value":"Saved"}""", messages[0].text)
+        assertEquals(ResourceType.PATIENT, messages[0].resourceType)
+        assertNotNull(messages[0].metadata)
+
+        assertEquals("101", messages[1].id)
+        assertEquals("TENANT", messages[1].tenant)
+        assertEquals("""{"id":3,"value":"New"}""", messages[1].text)
+        assertEquals(ResourceType.PATIENT, messages[1].resourceType)
+        assertNotNull(messages[1].metadata)
+
+        assertEquals("102", messages[2].id)
+        assertEquals("TENANT", messages[2].tenant)
+        assertEquals("""{"id":4,"value":"New"}""", messages[2].text)
+        assertEquals(ResourceType.PATIENT, messages[2].resourceType)
+        assertNotNull(messages[2].metadata)
     }
 
     @Test
@@ -82,9 +96,17 @@ class MessageDAOTest {
         val dao = MessageDAO(KtormHelper.database())
         val messages = dao.readApiMessages("TENANT", ResourceType.PATIENT, 2)
 
-        val message1 = ApiMessage("100", "TENANT", """{"id":2,"value":"Saved"}""", ResourceType.PATIENT)
-        val message2 = ApiMessage("101", "TENANT", """{"id":3,"value":"New"}""", ResourceType.PATIENT)
-        assertEquals(listOf(message1, message2), messages)
+        assertEquals("100", messages[0].id)
+        assertEquals("TENANT", messages[0].tenant)
+        assertEquals("""{"id":2,"value":"Saved"}""", messages[0].text)
+        assertEquals(ResourceType.PATIENT, messages[0].resourceType)
+        assertNotNull(messages[0].metadata)
+
+        assertEquals("101", messages[1].id)
+        assertEquals("TENANT", messages[1].tenant)
+        assertEquals("""{"id":3,"value":"New"}""", messages[1].text)
+        assertEquals(ResourceType.PATIENT, messages[1].resourceType)
+        assertNotNull(messages[1].metadata)
     }
 
     @Test
@@ -94,10 +116,23 @@ class MessageDAOTest {
         val dao = MessageDAO(KtormHelper.database())
         val messages = dao.readApiMessages("TENANT", ResourceType.PATIENT, 5)
 
-        val message1 = ApiMessage("100", "TENANT", """{"id":2,"value":"Saved"}""", ResourceType.PATIENT)
-        val message2 = ApiMessage("101", "TENANT", """{"id":3,"value":"New"}""", ResourceType.PATIENT)
-        val message3 = ApiMessage("102", "TENANT", """{"id":4,"value":"New"}""", ResourceType.PATIENT)
-        assertEquals(listOf(message1, message2, message3), messages)
+        assertEquals("100", messages[0].id)
+        assertEquals("TENANT", messages[0].tenant)
+        assertEquals("""{"id":2,"value":"Saved"}""", messages[0].text)
+        assertEquals(ResourceType.PATIENT, messages[0].resourceType)
+        assertNotNull(messages[0].metadata)
+
+        assertEquals("101", messages[1].id)
+        assertEquals("TENANT", messages[1].tenant)
+        assertEquals("""{"id":3,"value":"New"}""", messages[1].text)
+        assertEquals(ResourceType.PATIENT, messages[1].resourceType)
+        assertNotNull(messages[1].metadata)
+
+        assertEquals("102", messages[2].id)
+        assertEquals("TENANT", messages[2].tenant)
+        assertEquals("""{"id":4,"value":"New"}""", messages[2].text)
+        assertEquals(ResourceType.PATIENT, messages[2].resourceType)
+        assertNotNull(messages[2].metadata)
     }
 
     @Test
@@ -181,7 +216,8 @@ class MessageDAOTest {
         val message = ApiMessage(
             resourceType = ResourceType.PATIENT,
             tenant = "TEST1",
-            text = """{"id":2,"value":"Saved"}"""
+            text = """{"id":2,"value":"Saved"}""",
+            metadata = mockk()
         )
         dao.insertMessages(listOf(message))
     }
@@ -195,12 +231,14 @@ class MessageDAOTest {
         val message1 = ApiMessage(
             resourceType = ResourceType.PATIENT,
             tenant = "TEST1",
-            text = """{"id":2,"value":"Saved"}"""
+            text = """{"id":2,"value":"Saved"}""",
+            metadata = mockk()
         )
         val message2 = ApiMessage(
             resourceType = ResourceType.APPOINTMENT,
             tenant = "TEST1",
-            text = """{"id":3,"value":"Upcoming"}"""
+            text = """{"id":3,"value":"Upcoming"}""",
+            metadata = mockk()
         )
         dao.insertMessages(listOf(message1, message2))
     }
@@ -214,7 +252,8 @@ class MessageDAOTest {
         val message1 = ApiMessage(
             resourceType = ResourceType.PATIENT,
             tenant = "TEST1",
-            text = """{"id":2,"value":"Saved"}"""
+            text = """{"id":2,"value":"Saved"}""",
+            metadata = mockk()
         )
         val message2 = HL7Message(
             hl7Event = EventType.MDMT02,

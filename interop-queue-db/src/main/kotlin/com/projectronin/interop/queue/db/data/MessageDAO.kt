@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import java.time.Duration
 import java.time.Instant
+import java.time.OffsetDateTime
 
 /**
  * Provides data access operations for message data models.
@@ -84,7 +85,8 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
                 it.id.toString(),
                 it.tenant,
                 it.text,
-                it.resourceType
+                it.resourceType,
+                com.projectronin.event.interop.internal.v1.Metadata("db${it.id}", OffsetDateTime.now())
             )
         }
 

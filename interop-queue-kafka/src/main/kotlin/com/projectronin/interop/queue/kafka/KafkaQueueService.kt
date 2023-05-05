@@ -1,6 +1,8 @@
 package com.projectronin.interop.queue.kafka
 
-import com.projectronin.event.interop.resource.retrieve.v1.InteropResourceRetrieveV1
+import com.google.common.base.CaseFormat
+import com.projectronin.event.interop.internal.v1.InteropResourceRetrieveV1
+import com.projectronin.event.interop.internal.v1.eventName
 import com.projectronin.interop.common.hl7.EventType
 import com.projectronin.interop.common.hl7.MessageType
 import com.projectronin.interop.common.resource.ResourceType
@@ -27,10 +29,7 @@ class KafkaQueueService(
     val kafkaClient: KafkaClient,
     retrieveTopics: List<RetrieveTopic>
 ) : QueueService {
-    private val retrieveTopicsByResourceType = retrieveTopics.groupBy { it.resourceType.lowercase() }
-    private val typeMap: Map<String, KClass<*>> = mapOf(
-        "ronin.interop-proxy.resource.retrieve" to InteropResourceRetrieveV1::class
-    )
+    private val retrieveTopicsByResourceType = retrieveTopics.groupBy { it.resourceType }
 
     fun RoninEvent<*>.toAPIMessage(type: ResourceType): ApiMessage {
         val resourceRetrieve = this.data as InteropResourceRetrieveV1
@@ -38,13 +37,15 @@ class KafkaQueueService(
             id = this.id,
             tenant = resourceRetrieve.tenantId,
             resourceType = type,
-            text = resourceRetrieve.resourceJson
+            text = resourceRetrieve.resourceJson,
+            metadata = resourceRetrieve.metadata
         )
     }
 
     override fun enqueueMessages(messages: List<Message>) {
         val apiMessages = messages.filterIsInstance<ApiMessage>()
-        val apiMessagesByType = apiMessages.groupBy { it.resourceType.name.lowercase() }
+        val apiMessagesByType =
+            apiMessages.groupBy { it.resourceType.toEventResource() }
         apiMessagesByType.forEach { (type, list) ->
             val topic = retrieveTopicsByResourceType[type]?.singleOrNull()
             if (topic == null) {
@@ -56,11 +57,12 @@ class KafkaQueueService(
                 val data = InteropResourceRetrieveV1(
                     resourceType = type,
                     resourceJson = it.text,
-                    tenantId = it.tenant
+                    tenantId = it.tenant,
+                    metadata = it.metadata
                 )
                 KafkaEvent(
                     domain = topic.systemName,
-                    resource = "resource",
+                    resource = type.eventName(),
                     action = KafkaAction.RETRIEVE,
                     resourceId = it.id ?: UUID.randomUUID().toString(),
                     data = data
@@ -75,8 +77,14 @@ class KafkaQueueService(
         resourceType: ResourceType,
         limit: Int // used to differentiate group IDs (can make this less hacky when we get rid of DB queue)
     ): List<ApiMessage> {
-        val topic = retrieveTopicsByResourceType[resourceType.name.lowercase()]?.singleOrNull() ?: return emptyList()
-        return kafkaClient.retrieveEvents(topic, typeMap, "interop-mirth-queue-$limit").map { it.toAPIMessage(resourceType) }
+        val eventResourceType = resourceType.toEventResource()
+        val topic = retrieveTopicsByResourceType[eventResourceType]?.singleOrNull() ?: return emptyList()
+        val typeMap: Map<String, KClass<*>> = mapOf(
+            "ronin.interop-proxy.${eventResourceType.eventName()}.retrieve" to InteropResourceRetrieveV1::class
+        )
+
+        return kafkaClient.retrieveEvents(topic, typeMap, "interop-mirth-queue-$limit")
+            .map { it.toAPIMessage(resourceType) }
     }
 
     override fun dequeueHL7Messages(
@@ -91,4 +99,12 @@ class KafkaQueueService(
     override fun getStatus(): QueueStatus {
         TODO()
     }
+
+    fun ResourceType.toEventResource(): com.projectronin.event.interop.internal.v1.ResourceType =
+        com.projectronin.event.interop.internal.v1.ResourceType.valueOf(
+            CaseFormat.UPPER_UNDERSCORE.to(
+                CaseFormat.UPPER_CAMEL,
+                name
+            )
+        )
 }

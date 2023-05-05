@@ -1,6 +1,7 @@
 package com.projectronin.interop.queue.kafka
 
-import com.projectronin.event.interop.resource.retrieve.v1.InteropResourceRetrieveV1
+import com.projectronin.event.interop.internal.v1.InteropResourceRetrieveV1
+import com.projectronin.event.interop.internal.v1.Metadata
 import com.projectronin.interop.common.resource.ResourceType
 import com.projectronin.interop.kafka.client.KafkaClient
 import com.projectronin.interop.kafka.spring.KafkaBootstrapConfig
@@ -55,21 +56,26 @@ internal class KafkaQueueServiceTest {
 
     @Test
     fun `kafka messages enqueue`() {
+        val metadata = mockk<Metadata>()
+
         every { client.publishEvents<InteropResourceRetrieveV1>(any(), any()) } returns mockk()
         val message1 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = metadata
         )
         val message2 = ApiMessage(
             resourceType = ResourceType.APPOINTMENT,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = metadata
         )
         val message3 = ApiMessage(
             resourceType = ResourceType.PATIENT,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = metadata
         )
 
         assertDoesNotThrow { service.enqueueMessages(listOf(message1, message2, message3)) }
@@ -77,8 +83,15 @@ internal class KafkaQueueServiceTest {
 
     @Test
     fun `can dequeue api messages`() {
+        val metadata = mockk<Metadata>()
+
         val mockEvent = mockk<RoninEvent<InteropResourceRetrieveV1>>()
-        every { mockEvent.data } returns InteropResourceRetrieveV1("TENANT", "Patient", "Text")
+        every { mockEvent.data } returns InteropResourceRetrieveV1(
+            "TENANT",
+            com.projectronin.event.interop.internal.v1.ResourceType.Patient,
+            "Text",
+            metadata
+        )
         every { mockEvent.id } returns "messageID"
 
         every { client.retrieveEvents(any(), any(), any(), any()) } returns listOf(mockEvent)

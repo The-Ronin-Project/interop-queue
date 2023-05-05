@@ -22,6 +22,8 @@ class DBQueueServiceTest {
     private lateinit var service: DBQueueService
     private lateinit var kafka: KafkaQueueService
 
+    private val metadata = mockk<Metadata>()
+
     @BeforeEach
     fun setup() {
         messageDAO = mockk()
@@ -34,17 +36,20 @@ class DBQueueServiceTest {
         val message1 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
         val message2 = ApiMessage(
             resourceType = ResourceType.APPOINTMENT,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
         val message3 = ApiMessage(
             resourceType = ResourceType.PATIENT,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
         every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
         every { kafka.enqueueMessages(listOf(message3)) } just Runs
@@ -61,17 +66,20 @@ class DBQueueServiceTest {
         val message1 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
         val message2 = ApiMessage(
             resourceType = ResourceType.APPOINTMENT,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
         val message3 = ApiMessage(
             resourceType = ResourceType.PATIENT,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
         every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
         every { kafka.enqueueMessages(listOf(message1, message2, message3)) } just Runs
@@ -87,12 +95,14 @@ class DBQueueServiceTest {
         val message1 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
         val message2 = ApiMessage(
             resourceType = ResourceType.PRACTITIONER,
             tenant = "TENANT",
-            text = "Text"
+            text = "Text",
+            metadata = mockk()
         )
 
         every {

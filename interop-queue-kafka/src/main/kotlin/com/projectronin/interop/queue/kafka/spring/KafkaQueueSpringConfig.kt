@@ -1,5 +1,7 @@
 package com.projectronin.interop.queue.kafka.spring
 
+import com.projectronin.event.interop.internal.v1.ResourceType
+import com.projectronin.event.interop.internal.v1.eventName
 import com.projectronin.interop.kafka.model.RetrieveTopic
 import com.projectronin.interop.kafka.spring.KafkaConfig
 import com.projectronin.interop.kafka.spring.KafkaSpringConfig
@@ -16,22 +18,22 @@ class KafkaQueueSpringConfig(private val kafkaSpringConfig: KafkaConfig) {
     @Bean
     fun queueTopics(): List<RetrieveTopic> {
         val supportedResources = listOf(
-            "Patient",
-            "Practitioner",
-            "Appointment",
-            "Condition"
+            ResourceType.Patient,
+            ResourceType.Practitioner,
+            ResourceType.Appointment,
+            ResourceType.Condition
         )
         return supportedResources.map {
             generateTopics(it)
         }
     }
 
-    fun generateTopics(resourceType: String): RetrieveTopic {
+    fun generateTopics(resourceType: ResourceType): RetrieveTopic {
         val topicName = listOf(
             kafkaSpringConfig.cloud.vendor,
             kafkaSpringConfig.cloud.region,
             "interop-proxy",
-            "${resourceType.lowercase()}-retrieve",
+            "${resourceType.eventName()}-retrieve",
             "v1"
         ).joinToString(".")
         return RetrieveTopic(
