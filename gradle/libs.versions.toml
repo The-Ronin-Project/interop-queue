@@ -5,9 +5,9 @@ guava = "com.google.guava:guava:31.1-jre"
 
 event-interop-resource-internal = "com.projectronin.contract.event:event-interop-resource-internal:1.0.0"
 
-interop-common = "com.projectronin.interop:interop-common:3.7.0"
-interop-commonJackson = "com.projectronin.interop:interop-common-jackson:3.7.0"
-interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:3.7.0"
+interop-common = "com.projectronin.interop:interop-common:3.8.0"
+interop-commonJackson = "com.projectronin.interop:interop-common-jackson:3.8.0"
+interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:3.8.0"
 
 interop-kafka = "com.projectronin.interop.publish:interop-kafka:8.1.0"
 
