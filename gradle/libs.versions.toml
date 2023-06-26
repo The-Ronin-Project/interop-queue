@@ -9,7 +9,7 @@ interop-common = "com.projectronin.interop:interop-common:3.9.1"
 interop-commonJackson = "com.projectronin.interop:interop-common-jackson:3.9.1"
 interop-commonTestDb = "com.projectronin.interop:interop-common-test-db:3.9.1"
 
-interop-kafka = "com.projectronin.interop.publish:interop-kafka:8.1.1"
+interop-kafka = "com.projectronin.interop.publish:interop-kafka:8.1.2"
 
 ktorm-core = "org.ktorm:ktorm-core:3.6.0"
 ktorm-support-mysql = "org.ktorm:ktorm-support-mysql:3.6.0"
