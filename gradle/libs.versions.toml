@@ -1,14 +1,14 @@
 [versions]
 datadog = "4.2.0"
-guava = "31.1-jre"
-interop-event-internal = "1.0.0"
+guava = "32.1.1-jre"
 interop-common = "3.9.1"
-interop-kafka = "8.1.2"
+interop-event-internal = "1.0.0"
 interop-gradle = "3.2.0"
+interop-kafka = "8.1.2"
 ktorm = "3.6.0"
 mockk = "1.13.5"
 mysql = "8.0.33"
-rider = "1.38.1"
+rider = "1.39.0"
 ronin-kafka = "1.0.0"
 # @pin until can move to JDK 17
 spring-boot = "2.7.13"
@@ -16,17 +16,12 @@ testcontainers-mysql = "1.18.3"
 
 [libraries]
 dog-stats-d = { module = "com.datadoghq:java-dogstatsd-client", version.ref = "datadog" }
-
-guava = { module = "com.google.guava:guava", version.ref = "guava" }
-
 event-interop-resource-internal = { module = "com.projectronin.contract.event:event-interop-resource-internal", version.ref = "interop-event-internal" }
-
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 interop-common = { module = "com.projectronin.interop:interop-common", version.ref = "interop-common" }
 interop-commonJackson = { module = "com.projectronin.interop:interop-common-jackson", version.ref = "interop-common" }
-interop-commonTestDb = { module = "com.projectronin.interop:interop-common-test-db", version.ref = "interop-common"}
-
+interop-commonTestDb = { module = "com.projectronin.interop:interop-common-test-db", version.ref = "interop-common" }
 interop-kafka = { module = "com.projectronin.interop.publish:interop-kafka", version.ref = "interop-kafka" }
-
 ktorm-core = { module = "org.ktorm:ktorm-core", version.ref = "ktorm" }
 ktorm-support-mysql = { module = "org.ktorm:ktorm-support-mysql", version.ref = "ktorm" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
@@ -37,10 +32,12 @@ spring-boot-parent = { module = "org.springframework.boot:spring-boot-parent", v
 testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers-mysql" }
 
 [bundles]
-test-mysql = ["mysql-connector-java", "testcontainers-mysql"]
+test-mysql = [
+    "mysql-connector-java",
+    "testcontainers-mysql",
+]
 
 [plugins]
-interop-gradle-base = { id = "com.projectronin.interop.gradle.base", version.ref = "interop-gradle" }
 interop-gradle-integration = { id = "com.projectronin.interop.gradle.integration", version.ref = "interop-gradle" }
 interop-gradle-junit = { id = "com.projectronin.interop.gradle.junit", version.ref = "interop-gradle" }
 interop-gradle-publish = { id = "com.projectronin.interop.gradle.publish", version.ref = "interop-gradle" }
