@@ -7,7 +7,7 @@ interop-gradle = "3.2.0"
 interop-kafka = "8.1.2"
 ktorm = "3.6.0"
 mockk = "1.13.5"
-mysql = "8.0.33"
+mysql = "8.1.0"
 rider = "1.39.0"
 ronin-kafka = "1.0.0"
 # @pin until can move to JDK 17
