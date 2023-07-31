@@ -1,10 +1,10 @@
 [versions]
 datadog = "4.2.0"
 guava = "32.1.1-jre"
-interop-common = "3.9.1"
-interop-event-internal = "1.0.0"
+interop-common = "3.10.0"
+interop-event-internal = "1.1.0"
 interop-gradle = "3.2.0"
-interop-kafka = "8.1.2"
+interop-kafka = "8.2.0"
 ktorm = "3.6.0"
 mockk = "1.13.5"
 mysql = "8.1.0"
