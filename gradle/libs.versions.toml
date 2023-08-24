@@ -4,7 +4,7 @@ guava = "32.1.2-jre"
 interop-common = "3.11.0"
 interop-event-internal = "1.1.0"
 interop-gradle = "3.2.0"
-interop-kafka = "8.3.0"
+interop-kafka = "8.4.0"
 ktorm = "3.6.0"
 mockk = "1.13.7"
 mysql = "8.1.0"
@@ -12,7 +12,7 @@ rider = "1.39.0"
 ronin-kafka = "1.0.0"
 # @pin until can move to JDK 17
 spring-boot = "2.7.13"
-testcontainers-mysql = "1.18.3"
+testcontainers-mysql = "1.19.0"
 
 [libraries]
 dog-stats-d = { module = "com.datadoghq:java-dogstatsd-client", version.ref = "datadog" }
