@@ -1,7 +1,6 @@
 package com.projectronin.inteorp.queue.kafka
 
 import com.projectronin.interop.kafka.client.KafkaClient
-import com.projectronin.interop.kafka.spring.AdminWrapper
 import com.projectronin.interop.kafka.spring.KafkaBootstrapConfig
 import com.projectronin.interop.kafka.spring.KafkaCloudConfig
 import com.projectronin.interop.kafka.spring.KafkaConfig
@@ -46,5 +45,5 @@ abstract class BaseKafkaQueueServiceTest {
         ),
         retrieve = KafkaRetrieveConfig("groupID")
     )
-    protected val kafkaClient = KafkaClient(kafkaConfig, AdminWrapper(kafkaConfig))
+    protected val kafkaClient = KafkaClient(kafkaConfig)
 }
