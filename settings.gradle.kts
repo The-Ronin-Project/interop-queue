@@ -4,7 +4,6 @@ include("interop-queue")
 include("interop-queue-liquibase")
 include("interop-queue-db")
 include("interop-queue-kafka")
-include("interop-queue-monitor")
 
 for (project in rootProject.children) {
     project.buildFileName = "${project.name}.gradle.kts"
