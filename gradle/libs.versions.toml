@@ -1,21 +1,17 @@
 [versions]
-datadog = "4.2.0"
 guava = "32.1.2-jre"
 interop-common = "3.12.0"
 interop-event-internal = "1.1.0"
 interop-gradle = "3.2.0"
 interop-kafka = "8.4.1"
 ktorm = "3.6.0"
-mockk = "1.13.7"
+mockk = "1.13.8"
 mysql = "8.1.0"
 rider = "1.41.0"
 ronin-kafka = "1.1.1"
-# @pin until can move to JDK 17
-spring-boot = "2.7.13"
 testcontainers-mysql = "1.19.0"
 
 [libraries]
-dog-stats-d = { module = "com.datadoghq:java-dogstatsd-client", version.ref = "datadog" }
 event-interop-resource-internal = { module = "com.projectronin.contract.event:event-interop-resource-internal", version.ref = "interop-event-internal" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 interop-common = { module = "com.projectronin.interop:interop-common", version.ref = "interop-common" }
@@ -28,7 +24,6 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mysql-connector-java = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 rider-core = { module = "com.github.database-rider:rider-core", version.ref = "rider" }
 ronin-kafka = { module = "com.projectronin:ronin-kafka", version.ref = "ronin-kafka" }
-spring-boot-parent = { module = "org.springframework.boot:spring-boot-parent", version.ref = "spring-boot" }
 testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers-mysql" }
 
 [bundles]
@@ -42,6 +37,5 @@ interop-gradle-integration = { id = "com.projectronin.interop.gradle.integration
 interop-gradle-junit = { id = "com.projectronin.interop.gradle.junit", version.ref = "interop-gradle" }
 interop-gradle-publish = { id = "com.projectronin.interop.gradle.publish", version.ref = "interop-gradle" }
 interop-gradle-spring = { id = "com.projectronin.interop.gradle.spring", version.ref = "interop-gradle" }
-interop-gradle-spring-boot = { id = "com.projectronin.interop.gradle.spring-boot", version.ref = "interop-gradle" }
 interop-gradle-version = { id = "com.projectronin.interop.gradle.version", version.ref = "interop-gradle" }
 interop-version-catalog = { id = "com.projectronin.interop.gradle.version-catalog-update", version.ref = "interop-gradle" }
