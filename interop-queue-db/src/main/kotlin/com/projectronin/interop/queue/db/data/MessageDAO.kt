@@ -40,7 +40,9 @@ import java.time.OffsetDateTime
  * Provides data access operations for message data models.
  */
 @Repository
-class MessageDAO(@Qualifier("queue") private val database: Database) {
+class MessageDAO(
+    @Qualifier("queue") private val database: Database,
+) {
     val logger = KotlinLogging.logger { }
 
     /**
@@ -52,16 +54,17 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
     fun readApiMessages(
         tenant: String,
         resourceType: ResourceType,
-        limit: Int? = null
+        limit: Int? = null,
     ): List<ApiMessage> {
         logger.info { "Reading ${limit ?: "All"} $resourceType messages from the API queue for $tenant" }
-        var query = database.from(ApiMessageDOs).select()
-            .where(
-                (ApiMessageDOs.resourceType eq resourceType)
-                    and (ApiMessageDOs.tenant eq tenant)
-                    and (ApiMessageDOs.readInstant.isNull())
-            )
-            .orderBy(ApiMessageDOs.createInstant.asc())
+        var query =
+            database.from(ApiMessageDOs).select()
+                .where(
+                    (ApiMessageDOs.resourceType eq resourceType)
+                        and (ApiMessageDOs.tenant eq tenant)
+                        and (ApiMessageDOs.readInstant.isNull()),
+                )
+                .orderBy(ApiMessageDOs.createInstant.asc())
         query = limit?.let { query.limit(it) } ?: query
         val apiMessages = query.locking(LockingMode.FOR_UPDATE).map { ApiMessageDOs.createEntity(it) }
 
@@ -80,15 +83,16 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
             }
         }
 
-        val messages = apiMessages.map {
-            ApiMessage(
-                it.id.toString(),
-                it.tenant,
-                it.text,
-                it.resourceType,
-                com.projectronin.event.interop.internal.v1.Metadata("db${it.id}", OffsetDateTime.now())
-            )
-        }
+        val messages =
+            apiMessages.map {
+                ApiMessage(
+                    it.id.toString(),
+                    it.tenant,
+                    it.text,
+                    it.resourceType,
+                    com.projectronin.event.interop.internal.v1.Metadata("db${it.id}", OffsetDateTime.now()),
+                )
+            }
 
         logger.info { "${messages.size} $resourceType messages found." }
         return messages
@@ -105,22 +109,23 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
         tenant: String,
         type: MessageType,
         event: EventType? = null,
-        limit: Int? = null
+        limit: Int? = null,
     ): List<HL7Message> {
         logger.info { "Reading ${limit ?: "All"} [${event ?: type}] messages from the Hl7 queue for $tenant" }
 
-        var query = database.from(HL7MessageDOs).select()
-            .where {
-                val conditions = ArrayList<ColumnDeclaring<Boolean>>()
-                conditions += HL7MessageDOs.hl7Type eq type
-                conditions += HL7MessageDOs.tenant eq tenant
-                conditions += HL7MessageDOs.readInstant.isNull()
-                if (event != null) {
-                    conditions += HL7MessageDOs.hl7Event eq event
+        var query =
+            database.from(HL7MessageDOs).select()
+                .where {
+                    val conditions = ArrayList<ColumnDeclaring<Boolean>>()
+                    conditions += HL7MessageDOs.hl7Type eq type
+                    conditions += HL7MessageDOs.tenant eq tenant
+                    conditions += HL7MessageDOs.readInstant.isNull()
+                    if (event != null) {
+                        conditions += HL7MessageDOs.hl7Event eq event
+                    }
+                    conditions.reduce { a, b -> a and b }
                 }
-                conditions.reduce { a, b -> a and b }
-            }
-            .orderBy(HL7MessageDOs.createInstant.asc())
+                .orderBy(HL7MessageDOs.createInstant.asc())
         query = limit?.let { query.limit(it) } ?: query
         val hl7Messages = query.locking(LockingMode.FOR_UPDATE).map { HL7MessageDOs.createEntity(it) }
 
@@ -138,15 +143,16 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
             }
         }
 
-        val messages = hl7Messages.map {
-            HL7Message(
-                it.id.toString(),
-                it.tenant,
-                it.text,
-                it.hl7Type,
-                it.hl7Event
-            )
-        }
+        val messages =
+            hl7Messages.map {
+                HL7Message(
+                    it.id.toString(),
+                    it.tenant,
+                    it.text,
+                    it.hl7Type,
+                    it.hl7Event,
+                )
+            }
         logger.info { "${messages.size} $event messages found." }
         return messages
     }
@@ -179,46 +185,48 @@ class MessageDAO(@Qualifier("queue") private val database: Database) {
         val minApiAge = min(ApiMessageDOs.createInstant).aliased("minApiQueue")
 
         // Create api queue map of tenant to depth and age
-        val apiQueueStatus = database
-            .from(ApiMessageDOs)
-            .select(ApiMessageDOs.tenant, count, minApiAge)
-            .where {
-                ApiMessageDOs.readInstant.isNull()
-            }
-            .groupBy(ApiMessageDOs.tenant)
-            .associateBy(
-                { it[ApiMessageDOs.tenant]!! },
-                {
-                    val duration = Duration.between(it.getInstant(minApiAge.declaredName!!), Instant.now())
-                    Pair(it.getInt(count.declaredName!!), duration.seconds.toInt())
+        val apiQueueStatus =
+            database
+                .from(ApiMessageDOs)
+                .select(ApiMessageDOs.tenant, count, minApiAge)
+                .where {
+                    ApiMessageDOs.readInstant.isNull()
                 }
-            )
+                .groupBy(ApiMessageDOs.tenant)
+                .associateBy(
+                    { it[ApiMessageDOs.tenant]!! },
+                    {
+                        val duration = Duration.between(it.getInstant(minApiAge.declaredName!!), Instant.now())
+                        Pair(it.getInt(count.declaredName!!), duration.seconds.toInt())
+                    },
+                )
 
         logger.info { "Reading the status of the HL7 queue" }
         val minHl7Age = min(HL7MessageDOs.createInstant).aliased("minHl7Queue")
 
         // Create hl7 queue map of tenant to depth and age
-        val hl7QueueStatus = database
-            .from(HL7MessageDOs)
-            .select(HL7MessageDOs.tenant, count, minHl7Age)
-            .where {
-                HL7MessageDOs.readInstant.isNull()
-            }
-            .groupBy(HL7MessageDOs.tenant)
-            .associateBy(
-                { it[HL7MessageDOs.tenant]!! },
-                {
-                    val duration = Duration.between(it.getInstant(minHl7Age.declaredName!!), Instant.now())
-                    Pair(it.getInt(count.declaredName!!), duration.seconds.toInt())
+        val hl7QueueStatus =
+            database
+                .from(HL7MessageDOs)
+                .select(HL7MessageDOs.tenant, count, minHl7Age)
+                .where {
+                    HL7MessageDOs.readInstant.isNull()
                 }
-            )
+                .groupBy(HL7MessageDOs.tenant)
+                .associateBy(
+                    { it[HL7MessageDOs.tenant]!! },
+                    {
+                        val duration = Duration.between(it.getInstant(minHl7Age.declaredName!!), Instant.now())
+                        Pair(it.getInt(count.declaredName!!), duration.seconds.toInt())
+                    },
+                )
 
         // Value is a pair with queue depth first and age second
         return QueueStatus(
             apiDepth = apiQueueStatus.mapValues { it.value.first },
             apiAge = apiQueueStatus.mapValues { it.value.second },
             hl7Depth = hl7QueueStatus.mapValues { it.value.first },
-            hl7Age = hl7QueueStatus.mapValues { it.value.second }
+            hl7Age = hl7QueueStatus.mapValues { it.value.second },
         )
     }
 

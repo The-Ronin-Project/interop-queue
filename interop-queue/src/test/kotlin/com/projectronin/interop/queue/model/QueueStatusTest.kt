@@ -10,12 +10,13 @@ class QueueStatusTest {
         val depth = 2
         val age = 10
 
-        val status = QueueStatus(
-            apiDepth = mapOf(tenant to depth),
-            apiAge = mapOf(tenant to age),
-            hl7Depth = mapOf(tenant to depth),
-            hl7Age = mapOf(tenant to age)
-        )
+        val status =
+            QueueStatus(
+                apiDepth = mapOf(tenant to depth),
+                apiAge = mapOf(tenant to age),
+                hl7Depth = mapOf(tenant to depth),
+                hl7Age = mapOf(tenant to age),
+            )
 
         assertEquals(depth, status.apiDepth[tenant])
         assertEquals(age, status.apiAge[tenant])

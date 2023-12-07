@@ -16,7 +16,7 @@ data class ApiMessage(
     override val tenant: String,
     override val text: String,
     val resourceType: ResourceType,
-    val metadata: Metadata
+    val metadata: Metadata,
 ) : Message {
     override val messageType = MessageType.API
 }

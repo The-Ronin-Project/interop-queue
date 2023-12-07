@@ -11,5 +11,5 @@ data class QueueStatus(
     val apiDepth: Map<String, Int>,
     val hl7Depth: Map<String, Int>,
     val apiAge: Map<String, Int>,
-    val hl7Age: Map<String, Int>
+    val hl7Age: Map<String, Int>,
 )

@@ -1,6 +1,7 @@
 package com.projectronin.interop.queue.db.data.model
 
 import java.time.Instant
+
 /**
  Entity definition for shared values for all Messages
  */

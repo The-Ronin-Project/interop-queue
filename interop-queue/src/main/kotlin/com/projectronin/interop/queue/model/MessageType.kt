@@ -12,5 +12,5 @@ enum class MessageType {
     /**
      * The message contains details associated with a call to an API.
      */
-    API
+    API,
 }

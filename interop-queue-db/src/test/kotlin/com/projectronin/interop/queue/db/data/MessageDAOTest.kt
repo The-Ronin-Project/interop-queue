@@ -213,12 +213,13 @@ class MessageDAOTest {
     fun `insert single API message`() {
         val dao = MessageDAO(KtormHelper.database())
 
-        val message = ApiMessage(
-            resourceType = ResourceType.PATIENT,
-            tenant = "TEST1",
-            text = """{"id":2,"value":"Saved"}""",
-            metadata = mockk()
-        )
+        val message =
+            ApiMessage(
+                resourceType = ResourceType.PATIENT,
+                tenant = "TEST1",
+                text = """{"id":2,"value":"Saved"}""",
+                metadata = mockk(),
+            )
         dao.insertMessages(listOf(message))
     }
 
@@ -228,18 +229,20 @@ class MessageDAOTest {
     fun `insert multiple API messages`() {
         val dao = MessageDAO(KtormHelper.database())
 
-        val message1 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
-            tenant = "TEST1",
-            text = """{"id":2,"value":"Saved"}""",
-            metadata = mockk()
-        )
-        val message2 = ApiMessage(
-            resourceType = ResourceType.APPOINTMENT,
-            tenant = "TEST1",
-            text = """{"id":3,"value":"Upcoming"}""",
-            metadata = mockk()
-        )
+        val message1 =
+            ApiMessage(
+                resourceType = ResourceType.PATIENT,
+                tenant = "TEST1",
+                text = """{"id":2,"value":"Saved"}""",
+                metadata = mockk(),
+            )
+        val message2 =
+            ApiMessage(
+                resourceType = ResourceType.APPOINTMENT,
+                tenant = "TEST1",
+                text = """{"id":3,"value":"Upcoming"}""",
+                metadata = mockk(),
+            )
         dao.insertMessages(listOf(message1, message2))
     }
 
@@ -249,18 +252,20 @@ class MessageDAOTest {
     fun `insert multiple messages`() {
         val dao = MessageDAO(KtormHelper.database())
 
-        val message1 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
-            tenant = "TEST1",
-            text = """{"id":2,"value":"Saved"}""",
-            metadata = mockk()
-        )
-        val message2 = HL7Message(
-            hl7Event = EventType.MDMT02,
-            hl7Type = MessageType.MDM,
-            tenant = "TEST1",
-            text = """MSH|1231231"""
-        )
+        val message1 =
+            ApiMessage(
+                resourceType = ResourceType.PATIENT,
+                tenant = "TEST1",
+                text = """{"id":2,"value":"Saved"}""",
+                metadata = mockk(),
+            )
+        val message2 =
+            HL7Message(
+                hl7Event = EventType.MDMT02,
+                hl7Type = MessageType.MDM,
+                tenant = "TEST1",
+                text = """MSH|1231231""",
+            )
         dao.insertMessages(listOf(message1, message2))
     }
 
@@ -269,12 +274,13 @@ class MessageDAOTest {
     fun `can preserver hl7 messages formatting`() {
         val dao = MessageDAO(KtormHelper.database())
         val exampleMessage = this::class.java.getResource("/fakeHL7.txt")!!.readText()
-        val message1 = HL7Message(
-            tenant = "TEST1",
-            text = exampleMessage,
-            hl7Type = MessageType.MDM,
-            hl7Event = EventType.MDMT02
-        )
+        val message1 =
+            HL7Message(
+                tenant = "TEST1",
+                text = exampleMessage,
+                hl7Type = MessageType.MDM,
+                hl7Event = EventType.MDMT02,
+            )
         dao.insertMessages(listOf(message1))
         val messages = dao.readHL7Messages("TEST1", MessageType.MDM)
         assertEquals(exampleMessage, messages.first().text)

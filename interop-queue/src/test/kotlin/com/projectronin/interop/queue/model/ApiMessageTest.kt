@@ -11,12 +11,13 @@ class ApiMessageTest {
     @Test
     fun `check defaults`() {
         val metadata = Metadata(runId = "run1", runDateTime = OffsetDateTime.now())
-        val message = ApiMessage(
-            tenant = "tenant",
-            text = "text",
-            resourceType = ResourceType.PATIENT,
-            metadata = metadata
-        )
+        val message =
+            ApiMessage(
+                tenant = "tenant",
+                text = "text",
+                resourceType = ResourceType.PATIENT,
+                metadata = metadata,
+            )
         assertNull(message.id)
         assertEquals(MessageType.API, message.messageType)
         assertEquals(ResourceType.PATIENT, message.resourceType)
@@ -28,13 +29,14 @@ class ApiMessageTest {
     @Test
     fun `check getters`() {
         val metadata = Metadata(runId = "run1", runDateTime = OffsetDateTime.now())
-        val message = ApiMessage(
-            "id",
-            "tenant",
-            "text",
-            ResourceType.PATIENT,
-            metadata
-        )
+        val message =
+            ApiMessage(
+                "id",
+                "tenant",
+                "text",
+                ResourceType.PATIENT,
+                metadata,
+            )
         assertEquals("id", message.id)
         assertEquals(MessageType.API, message.messageType)
         assertEquals(ResourceType.PATIENT, message.resourceType)

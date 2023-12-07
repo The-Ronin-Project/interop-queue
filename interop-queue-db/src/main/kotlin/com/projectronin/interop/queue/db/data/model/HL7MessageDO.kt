@@ -3,6 +3,7 @@ package com.projectronin.interop.queue.db.data.model
 import com.projectronin.interop.common.hl7.EventType
 import com.projectronin.interop.common.hl7.MessageType
 import org.ktorm.entity.Entity
+
 /**
  * Entity definition for an API Message data object
  */

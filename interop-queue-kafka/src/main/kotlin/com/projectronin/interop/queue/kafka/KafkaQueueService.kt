@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
 @Service
 class KafkaQueueService(
     val kafkaClient: KafkaClient,
-    retrieveTopics: List<RetrieveTopic>
+    retrieveTopics: List<RetrieveTopic>,
 ) : QueueService {
     private val retrieveTopicsByResourceType = retrieveTopics.groupBy { it.resourceType }
 
@@ -38,7 +38,7 @@ class KafkaQueueService(
             tenant = resourceRetrieve.tenantId,
             resourceType = type,
             text = resourceRetrieve.resourceJson,
-            metadata = resourceRetrieve.metadata
+            metadata = resourceRetrieve.metadata,
         )
     }
 
@@ -53,21 +53,23 @@ class KafkaQueueService(
                 return@forEach
             }
 
-            val events = list.map {
-                val data = InteropResourceRetrieveV1(
-                    resourceType = type,
-                    resourceJson = it.text,
-                    tenantId = it.tenant,
-                    metadata = it.metadata
-                )
-                KafkaEvent(
-                    domain = topic.systemName,
-                    resource = type.eventName(),
-                    action = KafkaAction.RETRIEVE,
-                    resourceId = it.id ?: UUID.randomUUID().toString(),
-                    data = data
-                )
-            }
+            val events =
+                list.map {
+                    val data =
+                        InteropResourceRetrieveV1(
+                            resourceType = type,
+                            resourceJson = it.text,
+                            tenantId = it.tenant,
+                            metadata = it.metadata,
+                        )
+                    KafkaEvent(
+                        domain = topic.systemName,
+                        resource = type.eventName(),
+                        action = KafkaAction.RETRIEVE,
+                        resourceId = it.id ?: UUID.randomUUID().toString(),
+                        data = data,
+                    )
+                }
             kafkaClient.publishEvents(topic, events)
         }
     }
@@ -75,13 +77,15 @@ class KafkaQueueService(
     override fun dequeueApiMessages(
         tenantMnemonic: String,
         resourceType: ResourceType,
-        limit: Int // used to differentiate group IDs (can make this less hacky when we get rid of DB queue)
+        // used to differentiate group IDs (can make this less hacky when we get rid of DB queue)
+        limit: Int,
     ): List<ApiMessage> {
         val eventResourceType = resourceType.toEventResource()
         val topic = retrieveTopicsByResourceType[eventResourceType]?.singleOrNull() ?: return emptyList()
-        val typeMap: Map<String, KClass<*>> = mapOf(
-            "ronin.interop-proxy.${eventResourceType.eventName()}.retrieve" to InteropResourceRetrieveV1::class
-        )
+        val typeMap: Map<String, KClass<*>> =
+            mapOf(
+                "ronin.interop-proxy.${eventResourceType.eventName()}.retrieve" to InteropResourceRetrieveV1::class,
+            )
 
         return kafkaClient.retrieveEvents(topic, typeMap, "interop-mirth-queue-$limit")
             .map { it.toAPIMessage(resourceType) }
@@ -91,7 +95,7 @@ class KafkaQueueService(
         tenantMnemonic: String,
         hl7Type: MessageType,
         hl7Event: EventType?,
-        limit: Int
+        limit: Int,
     ): List<HL7Message> {
         TODO()
     }
@@ -104,7 +108,7 @@ class KafkaQueueService(
         com.projectronin.event.interop.internal.v1.ResourceType.valueOf(
             CaseFormat.UPPER_UNDERSCORE.to(
                 CaseFormat.UPPER_CAMEL,
-                name
-            )
+                name,
+            ),
         )
 }

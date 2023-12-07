@@ -23,7 +23,7 @@ interface QueueService {
     fun dequeueApiMessages(
         tenantMnemonic: String,
         resourceType: ResourceType,
-        limit: Int
+        limit: Int,
     ): List<ApiMessage>
 
     /**
@@ -33,7 +33,7 @@ interface QueueService {
         tenantMnemonic: String,
         hl7Type: MessageType,
         hl7Event: EventType?,
-        limit: Int
+        limit: Int,
     ): List<HL7Message>
 
     /**

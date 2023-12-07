@@ -30,23 +30,25 @@ class SchemaTest {
     fun `ensure read_instant indexes are created`() {
         val db = KtormHelper.database()
 
-        val apiIndexes = db.useConnection { connection ->
-            val sql = "SHOW INDEXES FROM io_queue_api"
-            connection.prepareStatement(sql).use { statement ->
-                statement.executeQuery().asIterable().map {
-                    it.getString("Key_name")
+        val apiIndexes =
+            db.useConnection { connection ->
+                val sql = "SHOW INDEXES FROM io_queue_api"
+                connection.prepareStatement(sql).use { statement ->
+                    statement.executeQuery().asIterable().map {
+                        it.getString("Key_name")
+                    }
                 }
             }
-        }
 
-        val hl7Indexes = db.useConnection { connection ->
-            val sql = "SHOW INDEXES FROM io_queue_hl7"
-            connection.prepareStatement(sql).use { statement ->
-                statement.executeQuery().asIterable().map {
-                    it.getString("Key_name")
+        val hl7Indexes =
+            db.useConnection { connection ->
+                val sql = "SHOW INDEXES FROM io_queue_hl7"
+                connection.prepareStatement(sql).use { statement ->
+                    statement.executeQuery().asIterable().map {
+                        it.getString("Key_name")
+                    }
                 }
             }
-        }
 
         assertTrue(apiIndexes.contains("idx_api_read_instant"))
         assertTrue(hl7Indexes.contains("idx_hl7_read_instant"))
@@ -58,23 +60,25 @@ class SchemaTest {
         val db = KtormHelper.database()
 
         // Similar query to the one used to pull queue depth, taken from [MessageDAO]
-        val query = db
-            .from(ApiMessageDOs)
-            .select(ApiMessageDOs.tenant, count())
-            .where {
-                ApiMessageDOs.readInstant.isNull()
-            }
-            .groupBy(ApiMessageDOs.tenant)
+        val query =
+            db
+                .from(ApiMessageDOs)
+                .select(ApiMessageDOs.tenant, count())
+                .where {
+                    ApiMessageDOs.readInstant.isNull()
+                }
+                .groupBy(ApiMessageDOs.tenant)
 
         // The actual native SQL query
         val sql = query.sql
 
         // Run an explain plan on the query and pull out the keys used
-        val keys = db.useConnection { connection ->
-            connection.prepareStatement("EXPLAIN $sql").use { statement ->
-                statement.executeQuery().asIterable().map { it.getString("key") }
+        val keys =
+            db.useConnection { connection ->
+                connection.prepareStatement("EXPLAIN $sql").use { statement ->
+                    statement.executeQuery().asIterable().map { it.getString("key") }
+                }
             }
-        }
 
         assertTrue(keys.contains("idx_api_read_instant"))
     }

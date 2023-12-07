@@ -33,24 +33,27 @@ class DBQueueServiceTest {
 
     @Test
     fun `can enqueue messages`() {
-        val message1 = ApiMessage(
-            resourceType = ResourceType.PRACTITIONER,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
-        val message2 = ApiMessage(
-            resourceType = ResourceType.APPOINTMENT,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
-        val message3 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
+        val message1 =
+            ApiMessage(
+                resourceType = ResourceType.PRACTITIONER,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
+        val message2 =
+            ApiMessage(
+                resourceType = ResourceType.APPOINTMENT,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
+        val message3 =
+            ApiMessage(
+                resourceType = ResourceType.PATIENT,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
         every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
         every { kafka.enqueueMessages(listOf(message3)) } just Runs
         service.enqueueMessages(listOf(message1, message2, message3))
@@ -63,24 +66,27 @@ class DBQueueServiceTest {
     @Test
     fun `kafka messages`() {
         service = DBQueueService(messageDAO, kafka, "yes")
-        val message1 = ApiMessage(
-            resourceType = ResourceType.PRACTITIONER,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
-        val message2 = ApiMessage(
-            resourceType = ResourceType.APPOINTMENT,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
-        val message3 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
+        val message1 =
+            ApiMessage(
+                resourceType = ResourceType.PRACTITIONER,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
+        val message2 =
+            ApiMessage(
+                resourceType = ResourceType.APPOINTMENT,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
+        val message3 =
+            ApiMessage(
+                resourceType = ResourceType.PATIENT,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
         every { messageDAO.insertMessages(listOf(message1, message2, message3)) } just Runs
         every { kafka.enqueueMessages(listOf(message1, message2, message3)) } just Runs
         service.enqueueMessages(listOf(message1, message2, message3))
@@ -92,24 +98,26 @@ class DBQueueServiceTest {
 
     @Test
     fun `can dequeue api messages`() {
-        val message1 = ApiMessage(
-            resourceType = ResourceType.PRACTITIONER,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
-        val message2 = ApiMessage(
-            resourceType = ResourceType.PRACTITIONER,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = mockk()
-        )
+        val message1 =
+            ApiMessage(
+                resourceType = ResourceType.PRACTITIONER,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
+        val message2 =
+            ApiMessage(
+                resourceType = ResourceType.PRACTITIONER,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = mockk(),
+            )
 
         every {
             messageDAO.readApiMessages(
                 "TENANT",
                 ResourceType.PRACTITIONER,
-                2
+                2,
             )
         } returns listOf(message1, message2)
 
@@ -123,25 +131,27 @@ class DBQueueServiceTest {
 
     @Test
     fun `can dequeue hl7 messages`() {
-        val message1 = HL7Message(
-            tenant = "TENANT",
-            text = "Text",
-            hl7Type = HL7MessageType.MDM,
-            hl7Event = EventType.MDMT02
-        )
-        val message2 = HL7Message(
-            tenant = "TENANT",
-            text = "Text",
-            hl7Type = HL7MessageType.MDM,
-            hl7Event = EventType.MDMT02
-        )
+        val message1 =
+            HL7Message(
+                tenant = "TENANT",
+                text = "Text",
+                hl7Type = HL7MessageType.MDM,
+                hl7Event = EventType.MDMT02,
+            )
+        val message2 =
+            HL7Message(
+                tenant = "TENANT",
+                text = "Text",
+                hl7Type = HL7MessageType.MDM,
+                hl7Event = EventType.MDMT02,
+            )
 
         every {
             messageDAO.readHL7Messages(
                 "TENANT",
                 HL7MessageType.MDM,
                 EventType.MDMT02,
-                2
+                2,
             )
         } returns listOf(message1, message2)
 
@@ -155,12 +165,13 @@ class DBQueueServiceTest {
 
     @Test
     fun `can get status`() {
-        val queueStatus = QueueStatus(
-            apiDepth = mapOf("Tenant" to 2),
-            apiAge = mapOf("Tenant" to 30),
-            hl7Depth = mapOf("Tenant" to 4),
-            hl7Age = mapOf("Tenant" to 45)
-        )
+        val queueStatus =
+            QueueStatus(
+                apiDepth = mapOf("Tenant" to 2),
+                apiAge = mapOf("Tenant" to 30),
+                hl7Depth = mapOf("Tenant" to 4),
+                hl7Age = mapOf("Tenant" to 45),
+            )
 
         every {
             messageDAO.getStatus()

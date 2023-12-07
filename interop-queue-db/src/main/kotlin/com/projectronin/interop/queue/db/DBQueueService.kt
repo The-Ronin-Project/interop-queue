@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service
 class DBQueueService(
     private val messageDAO: MessageDAO,
     private val kafkaQueue: KafkaQueueService,
-    @Value("\${queue.kafka.enabled:yes}") private val useKafka: String = "yes"
+    @Value("\${queue.kafka.enabled:yes}") private val useKafka: String = "yes",
 ) : QueueService {
     override fun enqueueMessages(messages: List<Message>) {
         // call kafka queue
@@ -36,7 +36,7 @@ class DBQueueService(
     override fun dequeueApiMessages(
         tenantMnemonic: String,
         resourceType: ResourceType,
-        limit: Int
+        limit: Int,
     ): List<ApiMessage> {
         return messageDAO.readApiMessages(tenantMnemonic, resourceType, limit)
     }
@@ -45,7 +45,7 @@ class DBQueueService(
         tenantMnemonic: String,
         hl7Type: MessageType,
         hl7Event: EventType?,
-        limit: Int
+        limit: Int,
     ): List<HL7Message> = messageDAO.readHL7Messages(tenantMnemonic, hl7Type, hl7Event, limit)
 
     override fun getStatus(): QueueStatus = messageDAO.getStatus()

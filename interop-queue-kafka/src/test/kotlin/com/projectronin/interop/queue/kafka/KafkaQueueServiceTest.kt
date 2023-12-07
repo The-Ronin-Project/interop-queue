@@ -25,31 +25,34 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 
 internal class KafkaQueueServiceTest {
-
     private lateinit var service: KafkaQueueService
     private lateinit var config: KafkaConfig
     private lateinit var client: KafkaClient
 
     @BeforeEach
     fun setup() {
-        val cloudConfig = KafkaCloudConfig(
-            vendor = "local",
-            region = "local"
-        )
+        val cloudConfig =
+            KafkaCloudConfig(
+                vendor = "local",
+                region = "local",
+            )
 
-        config = KafkaConfig(
-            cloud = cloudConfig,
-            bootstrap = KafkaBootstrapConfig(servers = "localhost:9092"),
-            publish = KafkaPublishConfig(source = "interop-kafka-it"),
-            properties = KafkaPropertiesConfig(
-                security = KafkaSecurityConfig(protocol = "PLAINTEXT"),
-                sasl = KafkaSaslConfig(
-                    mechanism = "GSSAPI",
-                    jaas = KafkaSaslJaasConfig(config = "")
-                )
-            ),
-            retrieve = KafkaRetrieveConfig("groupID")
-        )
+        config =
+            KafkaConfig(
+                cloud = cloudConfig,
+                bootstrap = KafkaBootstrapConfig(servers = "localhost:9092"),
+                publish = KafkaPublishConfig(source = "interop-kafka-it"),
+                properties =
+                    KafkaPropertiesConfig(
+                        security = KafkaSecurityConfig(protocol = "PLAINTEXT"),
+                        sasl =
+                            KafkaSaslConfig(
+                                mechanism = "GSSAPI",
+                                jaas = KafkaSaslJaasConfig(config = ""),
+                            ),
+                    ),
+                retrieve = KafkaRetrieveConfig("groupID"),
+            )
         client = mockk()
         service = KafkaQueueService(client, KafkaQueueSpringConfig(config).queueTopics())
     }
@@ -59,24 +62,27 @@ internal class KafkaQueueServiceTest {
         val metadata = mockk<Metadata>()
 
         every { client.publishEvents<InteropResourceRetrieveV1>(any(), any()) } returns mockk()
-        val message1 = ApiMessage(
-            resourceType = ResourceType.PRACTITIONER,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = metadata
-        )
-        val message2 = ApiMessage(
-            resourceType = ResourceType.APPOINTMENT,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = metadata
-        )
-        val message3 = ApiMessage(
-            resourceType = ResourceType.PATIENT,
-            tenant = "TENANT",
-            text = "Text",
-            metadata = metadata
-        )
+        val message1 =
+            ApiMessage(
+                resourceType = ResourceType.PRACTITIONER,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = metadata,
+            )
+        val message2 =
+            ApiMessage(
+                resourceType = ResourceType.APPOINTMENT,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = metadata,
+            )
+        val message3 =
+            ApiMessage(
+                resourceType = ResourceType.PATIENT,
+                tenant = "TENANT",
+                text = "Text",
+                metadata = metadata,
+            )
 
         assertDoesNotThrow { service.enqueueMessages(listOf(message1, message2, message3)) }
     }
@@ -86,12 +92,13 @@ internal class KafkaQueueServiceTest {
         val metadata = mockk<Metadata>()
 
         val mockEvent = mockk<RoninEvent<InteropResourceRetrieveV1>>()
-        every { mockEvent.data } returns InteropResourceRetrieveV1(
-            "TENANT",
-            com.projectronin.event.interop.internal.v1.ResourceType.Patient,
-            "Text",
-            metadata
-        )
+        every { mockEvent.data } returns
+            InteropResourceRetrieveV1(
+                "TENANT",
+                com.projectronin.event.interop.internal.v1.ResourceType.Patient,
+                "Text",
+                metadata,
+            )
         every { mockEvent.id } returns "messageID"
 
         every { client.retrieveEvents(any(), any(), any(), any()) } returns listOf(mockEvent)
