@@ -13,30 +13,33 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 class KafkaQueueTest : BaseKafkaQueueServiceTest() {
-    private val retrieveTopic = RetrieveTopic(
-        systemName = "interop-proxy",
-        topicName = "ronin.interop-proxy.patient.retrieve",
-        dataSchema = "http://localhost/event/interop.patient",
-        resourceType = com.projectronin.event.interop.internal.v1.ResourceType.Patient
-    )
+    private val retrieveTopic =
+        RetrieveTopic(
+            systemName = "interop-proxy",
+            topicName = "ronin.interop-proxy.patient.retrieve",
+            dataSchema = "http://localhost/event/interop.patient",
+            resourceType = com.projectronin.event.interop.internal.v1.ResourceType.Patient,
+        )
     private val kafkaQueueService = KafkaQueueService(kafkaClient, listOf(retrieveTopic))
 
     @Test
     fun `can enqueue and dequeue`() {
         val metadata1 = Metadata(runId = UUID.randomUUID().toString(), runDateTime = OffsetDateTime.now(ZoneOffset.UTC))
-        val message1 = ApiMessage(
-            tenant = "ronin",
-            resourceType = ResourceType.PATIENT,
-            text = "someJSON",
-            metadata = metadata1
-        )
+        val message1 =
+            ApiMessage(
+                tenant = "ronin",
+                resourceType = ResourceType.PATIENT,
+                text = "someJSON",
+                metadata = metadata1,
+            )
         val metadata2 = Metadata(runId = UUID.randomUUID().toString(), runDateTime = OffsetDateTime.now(ZoneOffset.UTC))
-        val message2 = ApiMessage(
-            tenant = "ronin",
-            resourceType = ResourceType.PATIENT,
-            text = "someJSON too",
-            metadata = metadata2
-        )
+        val message2 =
+            ApiMessage(
+                tenant = "ronin",
+                resourceType = ResourceType.PATIENT,
+                text = "someJSON too",
+                metadata = metadata2,
+            )
         kafkaQueueService.enqueueMessages(listOf(message1, message2))
 
         Thread.sleep(1_000)

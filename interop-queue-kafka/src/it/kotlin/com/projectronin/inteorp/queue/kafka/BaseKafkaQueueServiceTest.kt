@@ -20,30 +20,34 @@ abstract class BaseKafkaQueueServiceTest {
         val docker =
             DockerComposeContainer(File(BaseKafkaQueueServiceTest::class.java.getResource("/docker-compose-kafka.yaml")!!.file)).waitingFor(
                 "kafka",
-                Wait.forLogMessage(".*\\[KafkaServer id=\\d+\\] started.*", 1)
+                Wait.forLogMessage(".*\\[KafkaServer id=\\d+\\] started.*", 1),
             ).start()
 
         private val consumersByTopic = mutableMapOf<String, RoninConsumer>()
     }
 
     private val tenantId = "ronin"
-    private val cloudConfig = KafkaCloudConfig(
-        vendor = "local",
-        region = "local"
-    )
+    private val cloudConfig =
+        KafkaCloudConfig(
+            vendor = "local",
+            region = "local",
+        )
 
-    protected val kafkaConfig = KafkaConfig(
-        cloud = cloudConfig,
-        bootstrap = KafkaBootstrapConfig(servers = "localhost:9092"),
-        publish = KafkaPublishConfig(source = "interop-kafka-it"),
-        properties = KafkaPropertiesConfig(
-            security = KafkaSecurityConfig(protocol = "PLAINTEXT"),
-            sasl = KafkaSaslConfig(
-                mechanism = "GSSAPI",
-                jaas = KafkaSaslJaasConfig(config = "")
-            )
-        ),
-        retrieve = KafkaRetrieveConfig("groupID")
-    )
+    protected val kafkaConfig =
+        KafkaConfig(
+            cloud = cloudConfig,
+            bootstrap = KafkaBootstrapConfig(servers = "localhost:9092"),
+            publish = KafkaPublishConfig(source = "interop-kafka-it"),
+            properties =
+                KafkaPropertiesConfig(
+                    security = KafkaSecurityConfig(protocol = "PLAINTEXT"),
+                    sasl =
+                        KafkaSaslConfig(
+                            mechanism = "GSSAPI",
+                            jaas = KafkaSaslJaasConfig(config = ""),
+                        ),
+                ),
+            retrieve = KafkaRetrieveConfig("groupID"),
+        )
     protected val kafkaClient = KafkaClient(kafkaConfig)
 }
