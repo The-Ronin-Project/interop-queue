@@ -9,7 +9,7 @@ mockk = "1.13.10"
 mysql = "8.3.0"
 rider = "1.41.1"
 ronin-kafka = "1.1.2"
-testcontainers-mysql = "1.19.6"
+testcontainers-mysql = "1.19.7"
 
 [libraries]
 event-interop-resource-internal = { module = "com.projectronin.contract.event:event-interop-resource-internal", version.ref = "interop-event-internal" }
